@@ -7,25 +7,15 @@ import agentspeak.runtime
 import agentspeak.stdlib
 import collections
 
+import bdi
+
 # --8<-- [start:HelloWorldAgent]
-class HelloWorldAgent:
+class HelloWorldAgent(bdi.BDIAgent):
     """Hello World Agent."""
 
     def __init__(self):
-        self.bdi_intention_buffer = collections.deque()
-        super().__init__()
-        self.published_commands = []
+        super().__init__("hello.asl")
 
-        self.env = agentspeak.runtime.Environment()
-
-        # add custom actions (must occur before loading the asl file)
-        self.bdi_actions = agentspeak.Actions(agentspeak.stdlib.actions)
-        #self.add_custom_actions(self.bdi_actions)
-
-        with open("hello.asl") as source:
-            self.asp_agent=self.env.build_agent(source, self.bdi_actions)
-
-        self.env.run()
 
     def extract_reply(self):
         r = self.asp_agent.beliefs[('reply', 1)]
