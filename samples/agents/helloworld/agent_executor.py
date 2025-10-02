@@ -7,6 +7,7 @@ import agentspeak.runtime
 import agentspeak.stdlib
 import collections
 
+
 import bdi
 
 # --8<-- [start:HelloWorldAgent]
@@ -30,15 +31,11 @@ class HelloWorldAgent(bdi.BDIAgent):
         return tmp
 
     async def achieve(self, s:str) -> str:
-        self.asp_agent.call(agentspeak.Trigger.addition, agentspeak.GoalType.achievement, agentspeak.Literal(s,()), agentspeak.runtime.Intention() )
-        self.env.run()
-
-        tmp = self.extract_reply()
-        return ('My reply is ' + str(tmp))
+        self.on_receive(bdi.AgentSpeakMessage("achieve", s, "unknown"))
+        return ('My reply is ' + str(self.extract_reply()))
 
     async def tell(self, s:str) -> None:
-        self.asp_agent.call(agentspeak.Trigger.addition, agentspeak.GoalType.belief, agentspeak.Literal(s,()), agentspeak.runtime.Intention() )
-        self.env.run()
+        self.on_receive(bdi.AgentSpeakMessage("tell", s, "unknown"))
         return
 
 
