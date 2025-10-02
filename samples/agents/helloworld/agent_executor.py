@@ -27,11 +27,8 @@ class HelloWorldAgent:
 
         self.env.run()
 
-
-    async def invoke(self, s:str) -> str:
-        self.asp_agent.call(agentspeak.Trigger.addition, agentspeak.GoalType.achievement, agentspeak.Literal(s,()), agentspeak.runtime.Intention() )
-        self.env.run()
-        r=self.asp_agent.beliefs[('reply', 1)]
+    def extract_reply(self):
+        r = self.asp_agent.beliefs[('reply', 1)]
         # r is a set
         tmp = 'nothing'
         for e in r:
@@ -40,6 +37,13 @@ class HelloWorldAgent:
         if isinstance(tmp, agentspeak.Literal):
             tmp = tmp.args[0]
 
+        return tmp
+
+    async def achieve(self, s:str) -> str:
+        self.asp_agent.call(agentspeak.Trigger.addition, agentspeak.GoalType.achievement, agentspeak.Literal(s,()), agentspeak.runtime.Intention() )
+        self.env.run()
+
+        tmp = self.extract_reply()
         return ('My reply is ' + str(tmp))
 
 
@@ -62,8 +66,8 @@ class HelloWorldAgentExecutor(AgentExecutor):
     ) -> None:
 
         i = context.get_user_input()
-        if i == 'ping':
-            result = await self.agent.invoke('ping')
+        if i == '(achieve,ping)':
+            result = await self.agent.achieve('ping')
             await output_event_queue.enqueue_event(new_agent_text_message(result))
         else :
             print("Cannot answer to " + i)

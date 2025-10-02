@@ -16,11 +16,11 @@ from agent_executor import (
 if __name__ == '__main__':
     # --8<-- [start:AgentSkill]
     skill = AgentSkill(
-        id='hello_world',
+        id='ping',
         name='Returns hello world',
-        description='just returns hello world',
-        tags=['hello world'],
-        examples=['hi', 'hello world'],
+        description='just returns a number',
+        tags=['hello world', 'ping'],
+        examples=['(achieve, ping)'],
     )
     # --8<-- [end:AgentSkill]
 

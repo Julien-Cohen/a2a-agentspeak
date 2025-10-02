@@ -1,5 +1,5 @@
 [project]
-name = "helloworld"
+name = "a2a-agentspeak"
 version = "0.1.0"
 description = "HelloWorld agent + agentspeak example that only returns Messages"
 readme = "README.md"
