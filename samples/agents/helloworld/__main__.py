@@ -20,7 +20,7 @@ if __name__ == '__main__':
         name='Returns hello world',
         description='just returns a number',
         tags=['hello world', 'ping'],
-        examples=['(achieve, ping)'],
+        examples=['(achieve, ping)', '(tell, ready)'],
     )
     # --8<-- [end:AgentSkill]
 

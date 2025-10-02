@@ -107,6 +107,7 @@ async def main() -> None:
         )
         logger.info('A2AClient initialized.')
 
+        # First message (achieve)
         send_message_payload: dict[str, Any] = {
             'message': {
                 'role': 'user',
@@ -124,8 +125,42 @@ async def main() -> None:
         print(response.model_dump(mode='json', exclude_none=True))
         # --8<-- [end:send_message]
 
-        # --8<-- [start:send_message_streaming]
+        # Another message (tell)
+        send_message_payload: dict[str, Any] = {
+            'message': {
+                'role': 'user',
+                'parts': [
+                    {'kind': 'text', 'text': '(tell,ready)'}
+                ],
+                'messageId': uuid4().hex,
+            },
+        }
+        request = SendMessageRequest(
+            id=str(uuid4()), params=MessageSendParams(**send_message_payload)
+        )
 
+        response = await client.send_message(request)
+        print(response.model_dump(mode='json', exclude_none=True))
+
+        # Another message (achieve)
+        send_message_payload: dict[str, Any] = {
+            'message': {
+                'role': 'user',
+                'parts': [
+                    {'kind': 'text', 'text': '(achieve,ping)'}
+                ],
+                'messageId': uuid4().hex,
+            },
+        }
+        request = SendMessageRequest(
+            id=str(uuid4()), params=MessageSendParams(**send_message_payload)
+        )
+
+        response = await client.send_message(request)
+        print(response.model_dump(mode='json', exclude_none=True))
+
+        # --8<-- [start:send_message_streaming]
+        # Another message
         streaming_request = SendStreamingMessageRequest(
             id=str(uuid4()), params=MessageSendParams(**send_message_payload)
         )

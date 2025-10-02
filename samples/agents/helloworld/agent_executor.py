@@ -30,6 +30,7 @@ class HelloWorldAgent:
     def extract_reply(self):
         r = self.asp_agent.beliefs[('reply', 1)]
         # r is a set
+        print ("NB REPLY : " + str(len(r)))
         tmp = 'nothing'
         for e in r:
             tmp = e
@@ -45,6 +46,11 @@ class HelloWorldAgent:
 
         tmp = self.extract_reply()
         return ('My reply is ' + str(tmp))
+
+    async def tell(self, s:str) -> None:
+        self.asp_agent.call(agentspeak.Trigger.addition, agentspeak.GoalType.belief, agentspeak.Literal(s,()), agentspeak.runtime.Intention() )
+        self.env.run()
+        return
 
 
 # --8<-- [end:HelloWorldAgent]
@@ -69,6 +75,9 @@ class HelloWorldAgentExecutor(AgentExecutor):
         if i == '(achieve,ping)':
             result = await self.agent.achieve('ping')
             await output_event_queue.enqueue_event(new_agent_text_message(result))
+        elif i == '(tell,ready)':
+            await self.agent.tell('ready')
+            await output_event_queue.enqueue_event(new_agent_text_message("told"))
         else :
             print("Cannot answer to " + i)
 
