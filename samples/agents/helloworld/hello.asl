@@ -13,14 +13,10 @@ reply(-1).
     .print("I have been invoked by an achievement (ready)") ;
     ?reply(X) ;
     -reply(X) ;
-    +reply(42) ;
-    !check.
+    +reply(42).
 
 +!ping <-
     .print("I have been invoked by an achievement (not ready)") ;
     ?reply(X) ;
     -reply(X) ;
-    +reply(0) ;
-    !check.
-
-+!check : reply(X) <- .print ("Current reply is", X).
+    +reply(0).

@@ -10,12 +10,21 @@ from a2a.types import (
     AgentCard,
     MessageSendParams,
     SendMessageRequest,
-    SendStreamingMessageRequest,
+    SendMessageResponse,
+    SendStreamingMessageRequest, SendMessageSuccessResponse, Message,
 )
 from a2a.utils.constants import (
     AGENT_CARD_WELL_KNOWN_PATH,
     EXTENDED_AGENT_CARD_PATH,
 )
+
+def extraction (response):
+    if isinstance(response, SendMessageResponse):
+        if isinstance(response.root, SendMessageSuccessResponse):
+            if isinstance(response.root.result, Message):
+                return response.root.result.parts[0].root.text
+    # otherwise
+    return response.model_dump(mode='json', exclude_none=True)
 
 
 async def main() -> None:
@@ -122,7 +131,8 @@ async def main() -> None:
         )
 
         response = await client.send_message(request)
-        print(response.model_dump(mode='json', exclude_none=True))
+        print (extraction(response))
+
         # --8<-- [end:send_message]
 
         # Another message (tell)
@@ -140,7 +150,7 @@ async def main() -> None:
         )
 
         response = await client.send_message(request)
-        print(response.model_dump(mode='json', exclude_none=True))
+        print (extraction(response))
 
         # Another message (achieve)
         send_message_payload: dict[str, Any] = {
@@ -157,7 +167,7 @@ async def main() -> None:
         )
 
         response = await client.send_message(request)
-        print(response.model_dump(mode='json', exclude_none=True))
+        print (extraction(response))
 
         # --8<-- [start:send_message_streaming]
         # Another message

@@ -20,7 +20,6 @@ class HelloWorldAgent(bdi.BDIAgent):
     def extract_reply(self):
         r = self.asp_agent.beliefs[('reply', 1)]
         # r is a set
-        print ("NB REPLY : " + str(len(r)))
         tmp = 'nothing'
         for e in r:
             tmp = e
@@ -67,7 +66,7 @@ class HelloWorldAgentExecutor(AgentExecutor):
             await output_event_queue.enqueue_event(new_agent_text_message(result))
         elif i == '(tell,ready)':
             await self.agent.tell('ready')
-            await output_event_queue.enqueue_event(new_agent_text_message("told"))
+            await output_event_queue.enqueue_event(new_agent_text_message("Tell received."))
         else :
             print("Cannot answer to " + i)
 
