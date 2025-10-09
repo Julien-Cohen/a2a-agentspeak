@@ -64,7 +64,7 @@ class StateAgentExecutor(AgentExecutor):
         elif i == '(tell,ready)':
             await self.agent.tell('ready')
             await output_event_queue.enqueue_event(new_agent_text_message("Tell received."))
-        elif i == '(ask,get)':
+        elif i == '(ask,secret)':
             result = await self.agent.ask('secret')
             await output_event_queue.enqueue_event(new_agent_text_message(result))
         else :

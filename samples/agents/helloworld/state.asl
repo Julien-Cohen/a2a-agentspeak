@@ -22,4 +22,4 @@ secret(-1).
     -secret(X) ;
     +secret(0).
 
-+!test <- .reply_float(1) .
++!test <- .print_float(1) .

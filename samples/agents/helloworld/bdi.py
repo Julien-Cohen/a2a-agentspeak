@@ -116,8 +116,8 @@ class BDIAgent:
             def _set_public(command:agentspeak.Literal,arity:int, doc:str):
                 self.register_command(command.functor, arity, doc)
 
-            @actions.add_procedure(".reply_float", (float,))
-            def _reply(a):
+            @actions.add_procedure(".print_float", (float,))
+            def _print_float(a):
                 print(str(a))
 
     def on_receive(self, msg: AgentSpeakMessage):
