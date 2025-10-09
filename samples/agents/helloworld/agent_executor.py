@@ -53,7 +53,13 @@ class StateAgentExecutor(AgentExecutor):
         context: RequestContext,
         output_event_queue: EventQueue,
     ) -> None:
-        m = decode(context.get_user_input(), context.task_id)
+        if context.configuration == None:
+            sender = "no config"
+        elif context.configuration.push_notification_config == None:
+            sender = "no push config"
+        else:
+            sender = context.configuration.push_notification_config.url
+        m = decode(context.get_user_input(), sender)
 
         if m.illocution == 'achieve':
             self.agent.on_receive(m)
