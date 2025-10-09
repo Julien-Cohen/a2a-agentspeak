@@ -20,7 +20,7 @@ if __name__ == '__main__':
         name='provide a number',
         description='Returns a different number depending on an internal state that can be changed. Achieve ping to check connection. Tell ready to change state. Ask get to get the number',
         tags=['get', 'state'],
-        examples=['(achieve, ping)', '(tell, ready)', '(ask,get)'],
+        examples=['(achieve, ping)', '(tell, ready)', '(ask,secret)'],
     )
     # --8<-- [end:AgentSkill]
 
