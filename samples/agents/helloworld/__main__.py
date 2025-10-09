@@ -15,11 +15,11 @@ from agent_executor import (
 
 if __name__ == '__main__':
     # --8<-- [start:AgentSkill]
-    skill = AgentSkill(
+    ping_skill = AgentSkill(
         id='ping',
-        name='Returns hello world',
-        description='just returns a number',
-        tags=['hello world', 'ping'],
+        name='Returns a number',
+        description='Returns a different number depending on an internal state.',
+        tags=['ping', 'state'],
         examples=['(achieve, ping)', '(tell, ready)'],
     )
     # --8<-- [end:AgentSkill]
@@ -35,14 +35,14 @@ if __name__ == '__main__':
     # --8<-- [start:AgentCard]
     # This will be the public-facing agent card
     public_agent_card = AgentCard(
-        name='Hello World Agent',
-        description='Just a hello world agent',
+        name='State Ping Agent',
+        description='An agent with a state that returns a number on ping request.',
         url='http://localhost:9999/',
         version='1.0.0',
         default_input_modes=['text'],
         default_output_modes=['text'],
         capabilities=AgentCapabilities(streaming=True),
-        skills=[skill],  # Only the basic skill for the public card
+        skills=[ping_skill],  # Only the basic skill for the public card
         supports_authenticated_extended_card=True,
     )
     # --8<-- [end:AgentCard]
@@ -51,13 +51,13 @@ if __name__ == '__main__':
     # It includes the additional 'extended_skill'
     specific_extended_agent_card = public_agent_card.model_copy(
         update={
-            'name': 'Hello World Agent - Extended Edition',  # Different name for clarity
-            'description': 'The full-featured hello world agent for authenticated users.',
+            'name': 'State Ping Agent - Extended Edition',  # Different name for clarity
+            'description': 'The full-featured state ping agent for authenticated users.',
             'version': '1.0.1',  # Could even be a different version
             # Capabilities and other fields like url, default_input_modes, default_output_modes,
             # supports_authenticated_extended_card are inherited from public_agent_card unless specified here.
             'skills': [
-                skill,
+                ping_skill,
                 extended_skill,
             ],  # Both skills for the extended card
         }

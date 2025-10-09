@@ -32,7 +32,7 @@ class HelloWorldAgent(bdi.BDIAgent):
 
     async def achieve(self, s:str) -> str:
         self.on_receive(bdi.AgentSpeakMessage("achieve", s, "unknown"))
-        return ('My reply is ' + str(self.extract_reply()))
+        return ('The number is ' + str(self.extract_reply()))
 
     async def tell(self, s:str) -> None:
         self.on_receive(bdi.AgentSpeakMessage("tell", s, "unknown"))
@@ -63,7 +63,7 @@ class HelloWorldAgentExecutor(AgentExecutor):
             await output_event_queue.enqueue_event(new_agent_text_message(result))
         elif i == '(tell,ready)':
             await self.agent.tell('ready')
-            await output_event_queue.enqueue_event(new_agent_text_message("Tell received."))
+            await output_event_queue.enqueue_event(new_agent_text_message("I changed my state (new belief added)."))
         else :
             print("Cannot answer to " + i)
 

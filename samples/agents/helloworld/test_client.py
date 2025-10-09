@@ -131,7 +131,7 @@ async def main() -> None:
         )
 
         response = await client.send_message(request)
-        print (extraction(response))
+        print ("Answer: " + extraction(response))
 
         # --8<-- [end:send_message]
 
@@ -150,7 +150,7 @@ async def main() -> None:
         )
 
         response = await client.send_message(request)
-        print (extraction(response))
+        print ("Answer: " + extraction(response))
 
         # Another message (achieve)
         send_message_payload: dict[str, Any] = {
@@ -167,7 +167,7 @@ async def main() -> None:
         )
 
         response = await client.send_message(request)
-        print (extraction(response))
+        print ("Answer: " + extraction(response))
 
         # --8<-- [start:send_message_streaming]
         # Another message
@@ -176,9 +176,10 @@ async def main() -> None:
         )
 
         stream_response = client.send_message_streaming(streaming_request)
-
+        print("Answer (chunks): ")
         async for chunk in stream_response:
             print(chunk.model_dump(mode='json', exclude_none=True))
+        print("(end answer)")
         # --8<-- [end:send_message_streaming]
 
 
