@@ -5,22 +5,26 @@ from a2a.utils import new_agent_text_message
 import agentspeak
 import agentspeak.runtime
 import agentspeak.stdlib
-import collections
 
 
 import bdi
 
-# --8<-- [start:HelloWorldAgent]
-class HelloWorldAgent(bdi.BDIAgent):
-    """Hello World Agent."""
+
+class StatePingAgent(bdi.BDIAgent):
+    """State Ping  Agent."""
+
+    # in A2A, each received message has a event queue to post responses.
+    # This is not the case in AgentSpeak.
+    # Here we add a mechanism to build answers.
+    # More precisely, the AgentSpeak program adds a 'reply(v)' belief in its state
+    # and the value v is extracted and placed in an answer message.
 
     def __init__(self):
-        super().__init__("hello.asl")
+        super().__init__("state.asl")
 
 
-    def extract_reply(self):
+    def extract_reply_from_beliefs(self):
         r = self.asp_agent.beliefs[('reply', 1)]
-        # r is a set
         tmp = 'nothing'
         for e in r:
             tmp = e
@@ -32,25 +36,20 @@ class HelloWorldAgent(bdi.BDIAgent):
 
     async def achieve(self, s:str) -> str:
         self.on_receive(bdi.AgentSpeakMessage("achieve", s, "unknown"))
-        return ('The number is ' + str(self.extract_reply()))
+        return ('The number is ' + str(self.extract_reply_from_beliefs()))
 
     async def tell(self, s:str) -> None:
         self.on_receive(bdi.AgentSpeakMessage("tell", s, "unknown"))
         return
 
 
-# --8<-- [end:HelloWorldAgent]
 
-
-# --8<-- [start:HelloWorldAgentExecutor_init]
-class HelloWorldAgentExecutor(AgentExecutor):
-    """Test AgentProxy Implementation."""
+class StatePingAgentExecutor(AgentExecutor):
+    """Test AgentExecutor Implementation."""
 
     def __init__(self):
-        self.agent = HelloWorldAgent()
+        self.agent = StatePingAgent()
 
-    # --8<-- [end:HelloWorldAgentExecutor_init]
-    # --8<-- [start:HelloWorldAgentExecutor_execute]
     async def execute(
         self,
         context: RequestContext,
@@ -67,12 +66,8 @@ class HelloWorldAgentExecutor(AgentExecutor):
         else :
             print("Cannot answer to " + i)
 
-    # --8<-- [end:HelloWorldAgentExecutor_execute]
 
-    # --8<-- [start:HelloWorldAgentExecutor_cancel]
     async def cancel(
         self, context: RequestContext, event_queue: EventQueue
     ) -> None:
         raise Exception('cancel not supported')
-
-    # --8<-- [end:HelloWorldAgentExecutor_cancel]

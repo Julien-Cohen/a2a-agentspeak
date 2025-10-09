@@ -9,7 +9,7 @@ from a2a.types import (
     AgentSkill,
 )
 from agent_executor import (
-    HelloWorldAgentExecutor,  # type: ignore[import-untyped]
+    StatePingAgentExecutor,  # type: ignore[import-untyped]
 )
 
 
@@ -64,7 +64,7 @@ if __name__ == '__main__':
     )
 
     request_handler = DefaultRequestHandler(
-        agent_executor=HelloWorldAgentExecutor(),
+        agent_executor=StatePingAgentExecutor(),
         task_store=InMemoryTaskStore(),
     )
 
