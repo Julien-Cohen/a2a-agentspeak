@@ -23,8 +23,8 @@ class StatePingAgent(bdi.BDIAgent):
         super().__init__("state.asl")
 
 
-    def extract_reply_from_beliefs(self):
-        r = self.asp_agent.beliefs[('reply', 1)]
+    def extract_reply_from_beliefs(self, a):
+        r = self.asp_agent.beliefs[(a, 1)]
         tmp = 'nothing'
         for e in r:
             tmp = e
@@ -34,13 +34,16 @@ class StatePingAgent(bdi.BDIAgent):
 
         return tmp
 
-    async def achieve(self, s:str) -> str:
+    async def achieve(self, s:str) -> None:
         self.on_receive(bdi.AgentSpeakMessage("achieve", s, "unknown"))
-        return ('The number is ' + str(self.extract_reply_from_beliefs()))
+        return
 
     async def tell(self, s:str) -> None:
         self.on_receive(bdi.AgentSpeakMessage("tell", s, "unknown"))
         return
+
+    async def ask(self, s:str) -> str:
+        return str(self.extract_reply_from_beliefs(s))
 
 
 
@@ -58,11 +61,14 @@ class StatePingAgentExecutor(AgentExecutor):
 
         i = context.get_user_input()
         if i == '(achieve,ping)':
-            result = await self.agent.achieve('ping')
-            await output_event_queue.enqueue_event(new_agent_text_message(result))
+            await self.agent.achieve('ping')
+            await output_event_queue.enqueue_event(new_agent_text_message("Achieve received"))
         elif i == '(tell,ready)':
             await self.agent.tell('ready')
-            await output_event_queue.enqueue_event(new_agent_text_message("I changed my state (new belief added)."))
+            await output_event_queue.enqueue_event(new_agent_text_message("Tell received."))
+        elif i == '(ask,reply)':
+            result = await self.agent.ask('reply')
+            await output_event_queue.enqueue_event(new_agent_text_message(result))
         else :
             print("Cannot answer to " + i)
 

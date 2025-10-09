@@ -114,7 +114,7 @@ class BDIAgent:
                         agentspeak.Literal,
                 ),
             )
-            def _a2a_send(topic, illoc, lit):
+            def _a2a_send(dest, illoc, lit):
                     m = AgentSpeakMessage(
                         illocution = str(illoc),
                         content    = str(lit),
@@ -130,7 +130,7 @@ class BDIAgent:
                         str,
                 ),
             )
-            def _a2a_send_plan(topic, illoc, lit):
+            def _a2a_send_plan(dest, illoc, lit):
 
                 m= AgentSpeakMessage(
                         illocution = str(illoc),

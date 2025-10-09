@@ -110,7 +110,7 @@ async def main() -> None:
                 'Failed to fetch the public agent card. Cannot continue.'
             ) from e
 
-        # --8<-- [start:send_message]
+
         client = A2AClient(
             httpx_client=httpx_client, agent_card=final_agent_card_to_use
         )
@@ -129,11 +129,24 @@ async def main() -> None:
         request = SendMessageRequest(
             id=str(uuid4()), params=MessageSendParams(**send_message_payload)
         )
-
         response = await client.send_message(request)
         print ("Answer: " + extraction(response))
 
-        # --8<-- [end:send_message]
+        # Another message (ask)
+        send_message_payload: dict[str, Any] = {
+            'message': {
+                'role': 'user',
+                'parts': [
+                    {'kind': 'text', 'text': '(ask,reply)'}
+                ],
+                'messageId': uuid4().hex,
+            },
+        }
+        request = SendMessageRequest(
+            id=str(uuid4()), params=MessageSendParams(**send_message_payload)
+        )
+        response = await client.send_message(request)
+        print("Answer: " + extraction(response))
 
         # Another message (tell)
         send_message_payload: dict[str, Any] = {
@@ -148,7 +161,6 @@ async def main() -> None:
         request = SendMessageRequest(
             id=str(uuid4()), params=MessageSendParams(**send_message_payload)
         )
-
         response = await client.send_message(request)
         print ("Answer: " + extraction(response))
 
@@ -165,12 +177,26 @@ async def main() -> None:
         request = SendMessageRequest(
             id=str(uuid4()), params=MessageSendParams(**send_message_payload)
         )
-
         response = await client.send_message(request)
         print ("Answer: " + extraction(response))
 
-        # --8<-- [start:send_message_streaming]
-        # Another message
+        # Another message (ask)
+        send_message_payload: dict[str, Any] = {
+            'message': {
+                'role': 'user',
+                'parts': [
+                    {'kind': 'text', 'text': '(ask,reply)'}
+                ],
+                'messageId': uuid4().hex,
+            },
+        }
+        request = SendMessageRequest(
+            id=str(uuid4()), params=MessageSendParams(**send_message_payload)
+        )
+        response = await client.send_message(request)
+        print("Answer: " + extraction(response))
+
+        # Another message (streaming)
         streaming_request = SendStreamingMessageRequest(
             id=str(uuid4()), params=MessageSendParams(**send_message_payload)
         )
@@ -180,7 +206,7 @@ async def main() -> None:
         async for chunk in stream_response:
             print(chunk.model_dump(mode='json', exclude_none=True))
         print("(end answer)")
-        # --8<-- [end:send_message_streaming]
+
 
 
 if __name__ == '__main__':
