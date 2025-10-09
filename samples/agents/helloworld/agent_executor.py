@@ -32,18 +32,15 @@ class StateAgent(bdi.BDIAgent):
 
         return tmp
 
-    async def achieve(self, s:str) -> None:
-        self.on_receive(bdi.AgentSpeakMessage("achieve", s, "unknown"))
-        return
-
-    async def tell(self, s:str) -> None:
-        self.on_receive(bdi.AgentSpeakMessage("tell", s, "unknown"))
-        return
-
-    async def ask(self, s:str) -> str:
+    def ask(self, s:str) -> str:
         return str(self.extract_reply_from_beliefs(s))
 
 
+
+def decode(s:str) -> bdi.AgentSpeakMessage:
+    s2 = s.removeprefix("(").removesuffix(")")
+    s3 = s2.split(",")
+    return bdi.AgentSpeakMessage(s3[0], s3[1], "unknown")
 
 class StateAgentExecutor(AgentExecutor):
     """Test AgentExecutor Implementation."""
@@ -56,19 +53,19 @@ class StateAgentExecutor(AgentExecutor):
         context: RequestContext,
         output_event_queue: EventQueue,
     ) -> None:
+        m = decode(context.get_user_input())
 
-        i = context.get_user_input()
-        if i == '(achieve,ping)':
-            await self.agent.achieve('ping')
+        if m.illocution == 'achieve':
+            self.agent.on_receive(m)
             await output_event_queue.enqueue_event(new_agent_text_message("Achieve received"))
-        elif i == '(tell,ready)':
-            await self.agent.tell('ready')
+        elif m.illocution == 'tell':
+            self.agent.on_receive(m)
             await output_event_queue.enqueue_event(new_agent_text_message("Tell received."))
-        elif i == '(ask,secret)':
-            result = await self.agent.ask('secret')
+        elif m.illocution == 'ask':
+            result = self.agent.ask(m.content)
             await output_event_queue.enqueue_event(new_agent_text_message(result))
         else :
-            print("Cannot answer to " + i)
+            print("Cannot manage illocution " + m.illocution)
 
 
     async def cancel(
