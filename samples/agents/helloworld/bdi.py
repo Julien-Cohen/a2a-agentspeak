@@ -91,14 +91,14 @@ class BDIAgent:
 
         # add custom actions (must occur before loading the asl file)
         self.bdi_actions = agentspeak.Actions(agentspeak.stdlib.actions)
-        #self.add_custom_actions(self.bdi_actions)
+        self.add_custom_actions(self.bdi_actions)
 
         with open(asl_file) as source:
             self.asp_agent=self.env.build_agent(source, self.bdi_actions)
 
         self.env.run()
 
-# this method is called by __init__
+    # this method is called by __init__
     def add_custom_actions(self, actions: agentspeak.Actions):
 
             @actions.add("jump",0)
@@ -106,38 +106,6 @@ class BDIAgent:
                 print("["+ a.name +"] I jump")
                 yield
 
-            @actions.add_procedure(
-                ".send",
-                (
-                        agentspeak.Literal,
-                        agentspeak.Literal,
-                        agentspeak.Literal,
-                ),
-            )
-            def _a2a_send(dest, illoc, lit):
-                    m = AgentSpeakMessage(
-                        illocution = str(illoc),
-                        content    = str(lit),
-                        sender     = str(self.asp_agent.name)
-                    )
-                    return # fixme
-
-            @actions.add_procedure(
-                ".send_plan",
-                (
-                        agentspeak.Literal,
-                        agentspeak.Literal,
-                        str,
-                ),
-            )
-            def _a2a_send_plan(dest, illoc, lit):
-
-                m= AgentSpeakMessage(
-                        illocution = str(illoc),
-                        content    = lit,
-                        sender     = str(self.asp_agent.name)
-                    )
-                return # fixme
 
             @actions.add_procedure(
                 ".set_public",
@@ -150,19 +118,7 @@ class BDIAgent:
             def _set_public(command:agentspeak.Literal,arity:int, doc:str):
                 self.register_command(command.functor, arity, doc)
 
-            @actions.add_procedure(
-                ".send_catalog",
-                (
-                        agentspeak.Literal,
-                ),
-            )
-            def _send_catalog(topic):
-                m= AgentSpeakMessage(
-                        illocution="tell",
-                        content="catalog(" + str(self.published_commands) + ")",
-                        sender=str(self.asp_agent.name)
-                    )
-                return # fixme
+
 
     def on_receive(self, msg: AgentSpeakMessage):
         self.asp_agent.call(
