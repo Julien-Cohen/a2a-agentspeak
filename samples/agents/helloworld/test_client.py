@@ -35,13 +35,14 @@ async def main() -> None:
 
     # --8<-- [start:A2ACardResolver]
 
-    base_url = 'http://localhost:9999'
+    other_agent_url = 'http://localhost:9999'
+    my_url = 'http://localhost:9998'
 
     async with httpx.AsyncClient() as httpx_client:
         # Initialize A2ACardResolver
         resolver = A2ACardResolver(
             httpx_client=httpx_client,
-            base_url=base_url,
+            base_url=other_agent_url,
             # agent_card_path uses default, extended_agent_card_path also uses default
         )
         # --8<-- [end:A2ACardResolver]
@@ -51,7 +52,7 @@ async def main() -> None:
 
         try:
             logger.info(
-                f'Attempting to fetch public agent card from: {base_url}{AGENT_CARD_WELL_KNOWN_PATH}'
+                f'Attempting to fetch public agent card from: {other_agent_url}{AGENT_CARD_WELL_KNOWN_PATH}'
             )
             _public_card = (
                 await resolver.get_agent_card()
@@ -68,7 +69,7 @@ async def main() -> None:
             if _public_card.supports_authenticated_extended_card:
                 try:
                     logger.info(
-                        f'\nPublic card supports authenticated extended card. Attempting to fetch from: {base_url}{EXTENDED_AGENT_CARD_PATH}'
+                        f'\nPublic card supports authenticated extended card. Attempting to fetch from: {other_agent_url}{EXTENDED_AGENT_CARD_PATH}'
                     )
                     auth_headers_dict = {
                         'Authorization': 'Bearer dummy-token-for-extended-card'
@@ -117,7 +118,7 @@ async def main() -> None:
         )
         logger.info('A2AClient initialized.')
 
-        config = MessageSendConfiguration(push_notification_config=PushNotificationConfig(url="fixme"))
+        config = MessageSendConfiguration(push_notification_config=PushNotificationConfig(url=my_url))
 
         # First message (achieve)
         send_message_payload: dict[str, Any] = {
