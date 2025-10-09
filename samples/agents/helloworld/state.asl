@@ -6,8 +6,8 @@ secret(-1).
     .print("Hello from", N) ;
     !test.
 
-+ready:
-    .print("I received the ready signal").
++ready[source(S)]:
+    .print("I received the ready signal from", S).
 
 
 +!ping : ready <-

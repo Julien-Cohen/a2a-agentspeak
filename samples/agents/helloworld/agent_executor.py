@@ -37,10 +37,10 @@ class StateAgent(bdi.BDIAgent):
 
 
 
-def decode(s:str) -> bdi.AgentSpeakMessage:
+def decode(s:str, sender:str) -> bdi.AgentSpeakMessage:
     s2 = s.removeprefix("(").removesuffix(")")
     s3 = s2.split(",")
-    return bdi.AgentSpeakMessage(s3[0], s3[1], "unknown")
+    return bdi.AgentSpeakMessage(s3[0], s3[1], sender)
 
 class StateAgentExecutor(AgentExecutor):
     """Test AgentExecutor Implementation."""
@@ -53,7 +53,7 @@ class StateAgentExecutor(AgentExecutor):
         context: RequestContext,
         output_event_queue: EventQueue,
     ) -> None:
-        m = decode(context.get_user_input())
+        m = decode(context.get_user_input(), context.task_id)
 
         if m.illocution == 'achieve':
             self.agent.on_receive(m)
