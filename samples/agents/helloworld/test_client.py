@@ -137,7 +137,7 @@ async def main() -> None:
             'message': {
                 'role': 'user',
                 'parts': [
-                    {'kind': 'text', 'text': '(ask,reply)'}
+                    {'kind': 'text', 'text': '(ask,get)'}
                 ],
                 'messageId': uuid4().hex,
             },
@@ -185,7 +185,7 @@ async def main() -> None:
             'message': {
                 'role': 'user',
                 'parts': [
-                    {'kind': 'text', 'text': '(ask,reply)'}
+                    {'kind': 'text', 'text': '(ask,get)'}
                 ],
                 'messageId': uuid4().hex,
             },

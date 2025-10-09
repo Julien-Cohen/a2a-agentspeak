@@ -1,5 +1,5 @@
 !start.
-reply(-1).
+secret(-1).
 
 +!start <-
     .my_name(N) ;
@@ -11,12 +11,12 @@ reply(-1).
 
 +!ping : ready <-
     .print("I have been invoked by an achievement (ready)") ;
-    ?reply(X) ;
-    -reply(X) ;
-    +reply(42).
+    ?secret(X) ;
+    -secret(X) ;
+    +secret(42).
 
 +!ping <-
     .print("I have been invoked by an achievement (not ready)") ;
-    ?reply(X) ;
-    -reply(X) ;
-    +reply(0).
+    ?secret(X) ;
+    -secret(X) ;
+    +secret(0).

@@ -10,14 +10,12 @@ import agentspeak.stdlib
 import bdi
 
 
-class StatePingAgent(bdi.BDIAgent):
-    """State Ping  Agent."""
+class StateAgent(bdi.BDIAgent):
+    """State Agent."""
 
     # in A2A, each received message has a event queue to post responses.
     # This is not the case in AgentSpeak.
-    # Here we add a mechanism to build answers.
-    # More precisely, the AgentSpeak program adds a 'reply(v)' belief in its state
-    # and the value v is extracted and placed in an answer message.
+    # Here we add an illocution for requests that need an answer : ask
 
     def __init__(self):
         super().__init__("state.asl")
@@ -47,11 +45,11 @@ class StatePingAgent(bdi.BDIAgent):
 
 
 
-class StatePingAgentExecutor(AgentExecutor):
+class StateAgentExecutor(AgentExecutor):
     """Test AgentExecutor Implementation."""
 
     def __init__(self):
-        self.agent = StatePingAgent()
+        self.agent = StateAgent()
 
     async def execute(
         self,
@@ -66,8 +64,8 @@ class StatePingAgentExecutor(AgentExecutor):
         elif i == '(tell,ready)':
             await self.agent.tell('ready')
             await output_event_queue.enqueue_event(new_agent_text_message("Tell received."))
-        elif i == '(ask,reply)':
-            result = await self.agent.ask('reply')
+        elif i == '(ask,get)':
+            result = await self.agent.ask('secret')
             await output_event_queue.enqueue_event(new_agent_text_message(result))
         else :
             print("Cannot answer to " + i)

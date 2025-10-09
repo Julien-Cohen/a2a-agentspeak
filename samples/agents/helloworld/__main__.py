@@ -9,18 +9,18 @@ from a2a.types import (
     AgentSkill,
 )
 from agent_executor import (
-    StatePingAgentExecutor,  # type: ignore[import-untyped]
+    StateAgentExecutor,  # type: ignore[import-untyped]
 )
 
 
 if __name__ == '__main__':
     # --8<-- [start:AgentSkill]
-    ping_skill = AgentSkill(
-        id='ping',
-        name='Returns a number',
-        description='Returns a different number depending on an internal state.',
-        tags=['ping', 'state'],
-        examples=['(achieve, ping)', '(tell, ready)'],
+    number_provider_skill = AgentSkill(
+        id='number-provider',
+        name='provide a number',
+        description='Returns a different number depending on an internal state that can be changed. Achieve ping to check connection. Tell ready to change state. Ask get to get the number',
+        tags=['get', 'state'],
+        examples=['(achieve, ping)', '(tell, ready)', '(ask,get)'],
     )
     # --8<-- [end:AgentSkill]
 
@@ -35,14 +35,14 @@ if __name__ == '__main__':
     # --8<-- [start:AgentCard]
     # This will be the public-facing agent card
     public_agent_card = AgentCard(
-        name='State Ping Agent',
-        description='An agent with a state that returns a number on ping request.',
+        name='State Agent',
+        description='An agent with a state that returns a number on request. (Understands AgentSpeak messages)',
         url='http://localhost:9999/',
         version='1.0.0',
         default_input_modes=['text'],
         default_output_modes=['text'],
         capabilities=AgentCapabilities(streaming=True),
-        skills=[ping_skill],  # Only the basic skill for the public card
+        skills=[number_provider_skill],  # Only the basic skill for the public card
         supports_authenticated_extended_card=True,
     )
     # --8<-- [end:AgentCard]
@@ -57,14 +57,14 @@ if __name__ == '__main__':
             # Capabilities and other fields like url, default_input_modes, default_output_modes,
             # supports_authenticated_extended_card are inherited from public_agent_card unless specified here.
             'skills': [
-                ping_skill,
+                number_provider_skill,
                 extended_skill,
             ],  # Both skills for the extended card
         }
     )
 
     request_handler = DefaultRequestHandler(
-        agent_executor=StatePingAgentExecutor(),
+        agent_executor=StateAgentExecutor(),
         task_store=InMemoryTaskStore(),
     )
 
