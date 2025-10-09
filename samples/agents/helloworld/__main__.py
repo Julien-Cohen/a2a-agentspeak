@@ -41,7 +41,7 @@ if __name__ == '__main__':
         version='1.0.0',
         default_input_modes=['text'],
         default_output_modes=['text'],
-        capabilities=AgentCapabilities(streaming=True),
+        capabilities=AgentCapabilities(streaming=True, push_notifications=True),
         skills=[number_provider_skill],  # Only the basic skill for the public card
         supports_authenticated_extended_card=True,
     )

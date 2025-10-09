@@ -11,7 +11,8 @@ from a2a.types import (
     MessageSendParams,
     SendMessageRequest,
     SendMessageResponse,
-    SendStreamingMessageRequest, SendMessageSuccessResponse, Message,
+    SendStreamingMessageRequest, SendMessageSuccessResponse, Message, MessageSendConfiguration,
+    PushNotificationConfig
 )
 from a2a.utils.constants import (
     AGENT_CARD_WELL_KNOWN_PATH,
@@ -116,6 +117,8 @@ async def main() -> None:
         )
         logger.info('A2AClient initialized.')
 
+        config = MessageSendConfiguration(push_notification_config=PushNotificationConfig(url="fixme"))
+
         # First message (achieve)
         send_message_payload: dict[str, Any] = {
             'message': {
@@ -125,6 +128,7 @@ async def main() -> None:
                 ],
                 'messageId': uuid4().hex,
             },
+            'configuration' : config
         }
         request = SendMessageRequest(
             id=str(uuid4()), params=MessageSendParams(**send_message_payload)
@@ -141,6 +145,7 @@ async def main() -> None:
                 ],
                 'messageId': uuid4().hex,
             },
+            'configuration': config
         }
         request = SendMessageRequest(
             id=str(uuid4()), params=MessageSendParams(**send_message_payload)
@@ -157,6 +162,7 @@ async def main() -> None:
                 ],
                 'messageId': uuid4().hex,
             },
+            'configuration': config
         }
         request = SendMessageRequest(
             id=str(uuid4()), params=MessageSendParams(**send_message_payload)
@@ -173,6 +179,7 @@ async def main() -> None:
                 ],
                 'messageId': uuid4().hex,
             },
+            'configuration': config
         }
         request = SendMessageRequest(
             id=str(uuid4()), params=MessageSendParams(**send_message_payload)
@@ -189,6 +196,7 @@ async def main() -> None:
                 ],
                 'messageId': uuid4().hex,
             },
+            'configuration': config
         }
         request = SendMessageRequest(
             id=str(uuid4()), params=MessageSendParams(**send_message_payload)
