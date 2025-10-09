@@ -3,7 +3,8 @@ secret(-1).
 
 +!start <-
     .my_name(N) ;
-    .print("Hello from", N).
+    .print("Hello from", N) ;
+    !test.
 
 +ready:
     .print("I received the ready signal").
@@ -20,3 +21,5 @@ secret(-1).
     ?secret(X) ;
     -secret(X) ;
     +secret(0).
+
++!test <- .reply_float(1) .

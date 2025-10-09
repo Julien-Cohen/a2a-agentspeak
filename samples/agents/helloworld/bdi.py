@@ -1,6 +1,4 @@
 import asyncio
-import collections
-import re
 import ast
 
 import agentspeak
@@ -102,7 +100,7 @@ class BDIAgent:
     def add_custom_actions(self, actions: agentspeak.Actions):
 
             @actions.add("jump",0)
-            def _jump(a: agentspeak.runtime.Agent, b, c):
+            def _jump(a: agentspeak.runtime.Agent, t, i):
                 print("["+ a.name +"] I jump")
                 yield
 
@@ -118,7 +116,9 @@ class BDIAgent:
             def _set_public(command:agentspeak.Literal,arity:int, doc:str):
                 self.register_command(command.functor, arity, doc)
 
-
+            @actions.add_procedure(".reply_float", (float,))
+            def _reply(a):
+                print(str(a))
 
     def on_receive(self, msg: AgentSpeakMessage):
         self.asp_agent.call(
