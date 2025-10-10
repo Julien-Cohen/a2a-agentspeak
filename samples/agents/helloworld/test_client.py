@@ -11,7 +11,7 @@ from a2a.types import (
     MessageSendParams,
     SendMessageRequest,
     SendMessageResponse,
-    SendStreamingMessageRequest, SendMessageSuccessResponse, Message, MessageSendConfiguration,
+    SendMessageSuccessResponse, Message, MessageSendConfiguration,
     PushNotificationConfig
 )
 from a2a.utils.constants import (
@@ -19,7 +19,7 @@ from a2a.utils.constants import (
     EXTENDED_AGENT_CARD_PATH,
 )
 
-def extraction (response):
+def extract_text (response:SendMessageResponse):
     if isinstance(response, SendMessageResponse):
         if isinstance(response.root, SendMessageSuccessResponse):
             if isinstance(response.root.result, Message):
@@ -111,27 +111,27 @@ async def main() -> None:
         # First message (achieve)
         request = build_basic_request('(achieve,ping)', config)
         response = await client.send_message(request)
-        print ("Answer: " + extraction(response))
+        print ("Answer: " + extract_text(response))
 
         # Another message (ask)
         request = build_basic_request('(ask,secret)', config)
         response = await client.send_message(request)
-        print("Answer: " + extraction(response))
+        print("Answer: " + extract_text(response))
 
         # Another message (tell)
         request = build_basic_request('(tell,ready)', config)
         response = await client.send_message(request)
-        print ("Answer: " + extraction(response))
+        print ("Answer: " + extract_text(response))
 
         # Another message (achieve)
         request = build_basic_request('(achieve,ping)', config)
         response = await client.send_message(request)
-        print ("Answer: " + extraction(response))
+        print ("Answer: " + extract_text(response))
 
         # Another message (ask)
         request = build_basic_request('(ask,secret)', config)
         response = await client.send_message(request)
-        print("Answer: " + extraction(response))
+        print("Answer: " + extract_text(response))
 
 
 
