@@ -120,6 +120,10 @@ class BDIAgent:
             def _print_float(a):
                 print(str(a))
 
+            @actions.add_procedure(".send_url", (agentspeak.Literal,))
+            def _send_url(u:agentspeak.Literal):
+                print("send to " + str(u))
+
     def on_receive(self, msg: AgentSpeakMessage):
         self.asp_agent.call(
             msg.trigger(),
