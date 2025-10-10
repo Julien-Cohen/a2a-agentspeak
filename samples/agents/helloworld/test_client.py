@@ -16,7 +16,6 @@ from a2a.types import (
 )
 from a2a.utils.constants import (
     AGENT_CARD_WELL_KNOWN_PATH,
-    EXTENDED_AGENT_CARD_PATH,
 )
 
 def extract_text (response:SendMessageResponse):
@@ -63,7 +62,6 @@ async def main() -> None:
 
         # Fetch Public Agent Card and Initialize Client
         final_agent_card_to_use: AgentCard | None = None
-
         try:
             logger.info(
                 f'Attempting to fetch public agent card from: {other_agent_url}{AGENT_CARD_WELL_KNOWN_PATH}'
@@ -72,34 +70,15 @@ async def main() -> None:
                 await resolver.get_agent_card()
             )  # Fetches from default public path
             logger.info('Successfully fetched public agent card:')
-            logger.info(
-                _public_card.model_dump_json(indent=2, exclude_none=True)
-            )
             final_agent_card_to_use = _public_card
             logger.info(
                 '\nUsing PUBLIC agent card for client initialization (default).'
             )
 
-            if _public_card.supports_authenticated_extended_card:
-                logger.info(
-                        f'\nPublic card supports authenticated extended card.'
-                )
-
-            elif (
-                _public_card
-            ):  # supports_authenticated_extended_card is False or None
-                logger.info(
-                    '\nPublic card does not indicate support for an extended card. Using public card.'
-                )
-
         except Exception as e:
-            logger.error(
-                f'Critical error fetching public agent card: {e}', exc_info=True
-            )
             raise RuntimeError(
                 'Failed to fetch the public agent card. Cannot continue.'
             ) from e
-
 
         client = A2AClient(
             httpx_client=httpx_client, agent_card=final_agent_card_to_use
