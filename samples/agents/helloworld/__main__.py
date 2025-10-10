@@ -35,7 +35,7 @@ if __name__ == '__main__':
         default_output_modes=['text'],
         capabilities=AgentCapabilities(streaming=True, push_notifications=True),
         skills=[number_provider_skill],
-        supports_authenticated_extended_card=True,
+        supports_authenticated_extended_card=False,
     )
 
 
