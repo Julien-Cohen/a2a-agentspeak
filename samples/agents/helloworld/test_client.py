@@ -40,6 +40,10 @@ def build_basic_message(t: str, c: MessageSendConfiguration) -> dict[str, Any]:
         'configuration': c
     }
 
+
+def build_basic_request(t: str, c: MessageSendConfiguration) -> SendMessageRequest:
+    return SendMessageRequest(id=str(uuid4()), params=MessageSendParams(**build_basic_message(t, c)))
+
 async def main() -> None:
     # Configure logging to show INFO level messages
     logging.basicConfig(level=logging.INFO)
@@ -105,45 +109,29 @@ async def main() -> None:
         config = MessageSendConfiguration(push_notification_config=PushNotificationConfig(url=my_url))
 
         # First message (achieve)
-        send_message_payload: dict[str, Any] = build_basic_message('(achieve,ping)', config)
-        request = SendMessageRequest(
-            id=str(uuid4()), params=MessageSendParams(**send_message_payload)
-        )
+        request = build_basic_request('(achieve,ping)', config)
         response = await client.send_message(request)
         print ("Answer: " + extraction(response))
 
         # Another message (ask)
-        send_message_payload: dict[str, Any] = build_basic_message('(ask,secret)', config)
-        request = SendMessageRequest(
-            id=str(uuid4()), params=MessageSendParams(**send_message_payload)
-        )
+        request = build_basic_request('(ask,secret)', config)
         response = await client.send_message(request)
         print("Answer: " + extraction(response))
 
         # Another message (tell)
-        send_message_payload: dict[str, Any] = build_basic_message('(tell,ready)', config)
-        request = SendMessageRequest(
-            id=str(uuid4()), params=MessageSendParams(**send_message_payload)
-        )
+        request = build_basic_request('(tell,ready)', config)
         response = await client.send_message(request)
         print ("Answer: " + extraction(response))
 
         # Another message (achieve)
-        send_message_payload: dict[str, Any] = build_basic_message('(achieve,ping)', config)
-        request = SendMessageRequest(
-            id=str(uuid4()), params=MessageSendParams(**send_message_payload)
-        )
+        request = build_basic_request('(achieve,ping)', config)
         response = await client.send_message(request)
         print ("Answer: " + extraction(response))
 
         # Another message (ask)
-        send_message_payload: dict[str, Any] = build_basic_message('(ask,secret)', config)
-        request = SendMessageRequest(
-            id=str(uuid4()), params=MessageSendParams(**send_message_payload)
-        )
+        request = build_basic_request('(ask,secret)', config)
         response = await client.send_message(request)
         print("Answer: " + extraction(response))
-
 
 
 
