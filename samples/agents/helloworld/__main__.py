@@ -1,3 +1,4 @@
+import threading
 import uvicorn
 
 from a2a.server.apps import A2AStarletteApplication
@@ -33,7 +34,7 @@ if __name__ == '__main__':
         version='1.0.0',
         default_input_modes=['text'],
         default_output_modes=['text'],
-        capabilities=AgentCapabilities(streaming=True, push_notifications=True),
+        capabilities=AgentCapabilities(streaming=False, push_notifications=True),
         skills=[number_provider_skill],
         supports_authenticated_extended_card=False,
     )
@@ -49,4 +50,8 @@ if __name__ == '__main__':
         http_handler=request_handler,
     )
 
-    uvicorn.run(server.build(), host='0.0.0.0', port=9999)
+    def start():
+        uvicorn.run(server.build(), host='0.0.0.0', port=9999)
+
+    threading.Thread(target=start).start()
+    print("-running a2a-server for state agent-")

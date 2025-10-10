@@ -1,4 +1,5 @@
 import logging
+import threading
 
 from typing import Any
 from uuid import uuid4
@@ -6,8 +7,10 @@ from uuid import uuid4
 import httpx
 
 from a2a.client import A2ACardResolver, A2AClient
+from a2a.server.agent_execution import AgentExecutor, RequestContext
 from a2a.types import (
     AgentCard,
+    AgentCapabilities,
     MessageSendParams,
     SendMessageRequest,
     SendMessageResponse,
@@ -17,6 +20,12 @@ from a2a.types import (
 from a2a.utils.constants import (
     AGENT_CARD_WELL_KNOWN_PATH,
 )
+
+from a2a.server.apps import A2AStarletteApplication
+from a2a.server.request_handlers import DefaultRequestHandler
+from a2a.server.tasks import InMemoryTaskStore
+from a2a.server.events import EventQueue
+import uvicorn
 
 def extract_text (response:SendMessageResponse):
     if isinstance(response, SendMessageResponse):
@@ -43,6 +52,19 @@ def build_basic_message(t: str, c: MessageSendConfiguration) -> dict[str, Any]:
 def build_basic_request(t: str, c: MessageSendConfiguration) -> SendMessageRequest:
     return SendMessageRequest(id=str(uuid4()), params=MessageSendParams(**build_basic_message(t, c)))
 
+class ClientAgentExecutor(AgentExecutor):
+    async def execute(
+        self,
+        context: RequestContext,
+        output_event_queue: EventQueue,
+    ) -> None:
+        print("EXECUTE")
+
+    async def cancel(
+        self, context: RequestContext, event_queue: EventQueue
+    ) -> None:
+        raise Exception('cancel not supported')
+
 async def main() -> None:
     # Configure logging to show INFO level messages
     logging.basicConfig(level=logging.INFO)
@@ -51,6 +73,38 @@ async def main() -> None:
 
     other_agent_url = 'http://localhost:9999'
     my_url = 'http://localhost:9998'
+
+    # 1) start an a2a server
+
+    public_agent_card = AgentCard(
+        name='Client Agent',
+        description='A client agent',
+        url=my_url,
+        version='1.0.0',
+        default_input_modes=['text'],
+        default_output_modes=['text'],
+        capabilities=AgentCapabilities(streaming=False, push_notifications=False),
+        skills=[],
+        supports_authenticated_extended_card=False,
+    )
+
+    request_handler = DefaultRequestHandler(
+        agent_executor=ClientAgentExecutor(),
+        task_store=InMemoryTaskStore(),
+    )
+
+    server = A2AStarletteApplication(
+        agent_card=public_agent_card,
+        http_handler=request_handler,
+    )
+
+    def start():
+        uvicorn.run(server.build(), host='0.0.0.0', port=9998)
+
+    threading.Thread(target=start).start()
+    print("-running a2a-server for client agent-")
+
+    # 2) query the other a2a agent
 
     async with httpx.AsyncClient() as httpx_client:
         # Initialize A2ACardResolver
