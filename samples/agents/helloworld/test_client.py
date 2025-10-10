@@ -45,7 +45,6 @@ async def main() -> None:
     logging.basicConfig(level=logging.INFO)
     logger = logging.getLogger(__name__)  # Get a logger instance
 
-    # --8<-- [start:A2ACardResolver]
 
     other_agent_url = 'http://localhost:9999'
     my_url = 'http://localhost:9998'
@@ -57,7 +56,6 @@ async def main() -> None:
             base_url=other_agent_url,
             # agent_card_path uses default, extended_agent_card_path also uses default
         )
-        # --8<-- [end:A2ACardResolver]
 
         # Fetch Public Agent Card and Initialize Client
         final_agent_card_to_use: AgentCard | None = None
@@ -79,36 +77,10 @@ async def main() -> None:
             )
 
             if _public_card.supports_authenticated_extended_card:
-                try:
-                    logger.info(
-                        f'\nPublic card supports authenticated extended card. Attempting to fetch from: {other_agent_url}{EXTENDED_AGENT_CARD_PATH}'
-                    )
-                    auth_headers_dict = {
-                        'Authorization': 'Bearer dummy-token-for-extended-card'
-                    }
-                    _extended_card = await resolver.get_agent_card(
-                        relative_card_path=EXTENDED_AGENT_CARD_PATH,
-                        http_kwargs={'headers': auth_headers_dict},
-                    )
-                    logger.info(
-                        'Successfully fetched authenticated extended agent card:'
-                    )
-                    logger.info(
-                        _extended_card.model_dump_json(
-                            indent=2, exclude_none=True
-                        )
-                    )
-                    final_agent_card_to_use = (
-                        _extended_card  # Update to use the extended card
-                    )
-                    logger.info(
-                        '\nUsing AUTHENTICATED EXTENDED agent card for client initialization.'
-                    )
-                except Exception as e_extended:
-                    logger.warning(
-                        f'Failed to fetch extended agent card: {e_extended}. Will proceed with public card.',
-                        exc_info=True,
-                    )
+                logger.info(
+                        f'\nPublic card supports authenticated extended card.'
+                )
+
             elif (
                 _public_card
             ):  # supports_authenticated_extended_card is False or None
