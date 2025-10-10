@@ -28,6 +28,18 @@ def extraction (response):
     return response.model_dump(mode='json', exclude_none=True)
 
 
+def build_basic_message(t: str, c: MessageSendConfiguration) -> dict[str, Any]:
+    return {
+        'message': {
+            'role': 'user',
+            'parts': [
+                {'kind': 'text', 'text': t}
+            ],
+            'messageId': uuid4().hex,
+        },
+        'configuration': c
+    }
+
 async def main() -> None:
     # Configure logging to show INFO level messages
     logging.basicConfig(level=logging.INFO)
@@ -121,16 +133,7 @@ async def main() -> None:
         config = MessageSendConfiguration(push_notification_config=PushNotificationConfig(url=my_url))
 
         # First message (achieve)
-        send_message_payload: dict[str, Any] = {
-            'message': {
-                'role': 'user',
-                'parts': [
-                    {'kind': 'text', 'text': '(achieve,ping)'}
-                ],
-                'messageId': uuid4().hex,
-            },
-            'configuration' : config
-        }
+        send_message_payload: dict[str, Any] = build_basic_message('(achieve,ping)', config)
         request = SendMessageRequest(
             id=str(uuid4()), params=MessageSendParams(**send_message_payload)
         )
@@ -138,16 +141,7 @@ async def main() -> None:
         print ("Answer: " + extraction(response))
 
         # Another message (ask)
-        send_message_payload: dict[str, Any] = {
-            'message': {
-                'role': 'user',
-                'parts': [
-                    {'kind': 'text', 'text': '(ask,secret)'}
-                ],
-                'messageId': uuid4().hex,
-            },
-            'configuration': config
-        }
+        send_message_payload: dict[str, Any] = build_basic_message('(ask,secret)', config)
         request = SendMessageRequest(
             id=str(uuid4()), params=MessageSendParams(**send_message_payload)
         )
@@ -155,16 +149,7 @@ async def main() -> None:
         print("Answer: " + extraction(response))
 
         # Another message (tell)
-        send_message_payload: dict[str, Any] = {
-            'message': {
-                'role': 'user',
-                'parts': [
-                    {'kind': 'text', 'text': '(tell,ready)'}
-                ],
-                'messageId': uuid4().hex,
-            },
-            'configuration': config
-        }
+        send_message_payload: dict[str, Any] = build_basic_message('(tell,ready)', config)
         request = SendMessageRequest(
             id=str(uuid4()), params=MessageSendParams(**send_message_payload)
         )
@@ -172,16 +157,7 @@ async def main() -> None:
         print ("Answer: " + extraction(response))
 
         # Another message (achieve)
-        send_message_payload: dict[str, Any] = {
-            'message': {
-                'role': 'user',
-                'parts': [
-                    {'kind': 'text', 'text': '(achieve,ping)'}
-                ],
-                'messageId': uuid4().hex,
-            },
-            'configuration': config
-        }
+        send_message_payload: dict[str, Any] = build_basic_message('(achieve,ping)', config)
         request = SendMessageRequest(
             id=str(uuid4()), params=MessageSendParams(**send_message_payload)
         )
@@ -189,32 +165,14 @@ async def main() -> None:
         print ("Answer: " + extraction(response))
 
         # Another message (ask)
-        send_message_payload: dict[str, Any] = {
-            'message': {
-                'role': 'user',
-                'parts': [
-                    {'kind': 'text', 'text': '(ask,secret)'}
-                ],
-                'messageId': uuid4().hex,
-            },
-            'configuration': config
-        }
+        send_message_payload: dict[str, Any] = build_basic_message('(ask,secret)', config)
         request = SendMessageRequest(
             id=str(uuid4()), params=MessageSendParams(**send_message_payload)
         )
         response = await client.send_message(request)
         print("Answer: " + extraction(response))
 
-        # Another message (streaming)
-        streaming_request = SendStreamingMessageRequest(
-            id=str(uuid4()), params=MessageSendParams(**send_message_payload)
-        )
 
-        stream_response = client.send_message_streaming(streaming_request)
-        print("Answer (chunks): ")
-        async for chunk in stream_response:
-            print(chunk.model_dump(mode='json', exclude_none=True))
-        print("(end answer)")
 
 
 

@@ -11,13 +11,13 @@ secret(-1).
 
 
 +!ping : ready <-
-    .print("I have been invoked by an achievement (while ready)") ;
+    .print("I have been invoked by a ping achievement (while ready)") ;
     ?secret(X) ;
     -secret(X) ;
     +secret(42).
 
 +!ping <-
-    .print("I have been invoked by an achievement (while not ready)") ;
+    .print("I have been invoked by a ping achievement (while not ready)") ;
     ?secret(X) ;
     -secret(X) ;
     +secret(0).
