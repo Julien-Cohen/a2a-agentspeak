@@ -1,9 +1,6 @@
 import logging
 import threading
 
-from typing import Any
-from uuid import uuid4
-
 import httpx
 
 from a2a.client import A2ACardResolver, A2AClient
@@ -11,15 +8,13 @@ from a2a.server.agent_execution import AgentExecutor, RequestContext
 from a2a.types import (
     AgentCard,
     AgentCapabilities,
-    MessageSendParams,
-    SendMessageRequest,
-    SendMessageResponse,
-    SendMessageSuccessResponse, Message, MessageSendConfiguration,
+    MessageSendConfiguration,
     PushNotificationConfig
 )
 from a2a.utils.constants import (
     AGENT_CARD_WELL_KNOWN_PATH,
 )
+from a2a.utils import new_agent_text_message
 
 from a2a.server.apps import A2AStarletteApplication
 from a2a.server.request_handlers import DefaultRequestHandler
@@ -27,30 +22,7 @@ from a2a.server.tasks import InMemoryTaskStore
 from a2a.server.events import EventQueue
 import uvicorn
 
-def extract_text (response:SendMessageResponse):
-    if isinstance(response, SendMessageResponse):
-        if isinstance(response.root, SendMessageSuccessResponse):
-            if isinstance(response.root.result, Message):
-                return response.root.result.parts[0].root.text
-    # otherwise
-    return response.model_dump(mode='json', exclude_none=True)
-
-
-def build_basic_message(t: str, c: MessageSendConfiguration) -> dict[str, Any]:
-    return {
-        'message': {
-            'role': 'user',
-            'parts': [
-                {'kind': 'text', 'text': t}
-            ],
-            'messageId': uuid4().hex,
-        },
-        'configuration': c
-    }
-
-
-def build_basic_request(t: str, c: MessageSendConfiguration) -> SendMessageRequest:
-    return SendMessageRequest(id=str(uuid4()), params=MessageSendParams(**build_basic_message(t, c)))
+from message_tools import build_basic_request, extract_text
 
 class ClientAgentExecutor(AgentExecutor):
     async def execute(
@@ -58,7 +30,8 @@ class ClientAgentExecutor(AgentExecutor):
         context: RequestContext,
         output_event_queue: EventQueue,
     ) -> None:
-        print("EXECUTE")
+        print("EXECUTE FROM CLIENT AGENT A2A SERVER")
+        await output_event_queue.enqueue_event(new_agent_text_message("MESSAGE_RECEIVED"))
 
     async def cancel(
         self, context: RequestContext, event_queue: EventQueue
@@ -71,8 +44,8 @@ async def main() -> None:
     logger = logging.getLogger(__name__)  # Get a logger instance
 
 
-    other_agent_url = 'http://localhost:9999'
-    my_url = 'http://localhost:9998'
+    other_agent_url = 'http://127.0.0.1:9999'
+    my_url = 'http://127.0.0.1:9998'
 
     # 1) start an a2a server
 
@@ -111,7 +84,6 @@ async def main() -> None:
         resolver = A2ACardResolver(
             httpx_client=httpx_client,
             base_url=other_agent_url,
-            # agent_card_path uses default, extended_agent_card_path also uses default
         )
 
         # Fetch Public Agent Card and Initialize Client
@@ -131,7 +103,7 @@ async def main() -> None:
 
         except Exception as e:
             raise RuntimeError(
-                'Failed to fetch the public agent card. Cannot continue.'
+                'Client failed to fetch the public agent card. Cannot continue.'
             ) from e
 
         client = A2AClient(
@@ -144,27 +116,27 @@ async def main() -> None:
         # First message (achieve)
         request = build_basic_request('(achieve,ping)', config)
         response = await client.send_message(request)
-        print ("Answer: " + extract_text(response))
+        print ("Answer received from state agent: " + extract_text(response))
 
         # Another message (ask)
         request = build_basic_request('(ask,secret)', config)
         response = await client.send_message(request)
-        print("Answer: " + extract_text(response))
+        print("Answer received from state agent: " + extract_text(response))
 
         # Another message (tell)
         request = build_basic_request('(tell,ready)', config)
         response = await client.send_message(request)
-        print ("Answer: " + extract_text(response))
+        print ("Answer received for tell/ready from state agent: " + str(extract_text(response)))
 
         # Another message (achieve)
         request = build_basic_request('(achieve,ping)', config)
         response = await client.send_message(request)
-        print ("Answer: " + extract_text(response))
+        print ("Answer received from state agent: " + extract_text(response))
 
         # Another message (ask)
         request = build_basic_request('(ask,secret)', config)
         response = await client.send_message(request)
-        print("Answer: " + extract_text(response))
+        print("Answer received from state agent: " + extract_text(response))
 
 
 
