@@ -46,14 +46,6 @@ Agent can also be built using a container file.
     podman run -p 9999:9999 helloworld-a2a-server
     ```
 
-## Validate
-
-To validate in a separate terminal, run the A2A client:
-
-```bash
-cd samples/python/hosts/cli
-uv run . --agent http://localhost:9999
-```
 
 
 ## Disclaimer
