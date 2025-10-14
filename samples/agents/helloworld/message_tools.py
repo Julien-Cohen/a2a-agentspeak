@@ -5,12 +5,13 @@ from typing import Any
 from uuid import uuid4
 
 def extract_text (response:SendMessageResponse):
-    if isinstance(response, SendMessageResponse):
-        if isinstance(response.root, SendMessageSuccessResponse):
-            if isinstance(response.root.result, Message):
+    if (isinstance(response, SendMessageResponse)
+        and isinstance(response.root, SendMessageSuccessResponse)
+            and isinstance(response.root.result, Message)
+        ) :
                 return response.root.result.parts[0].root.text
-    # otherwise
-    return response.model_dump(mode='json', exclude_none=True)
+    else:
+        return response.model_dump(mode='json', exclude_none=True)
 
 
 def build_basic_message(t: str, c: MessageSendConfiguration) -> dict[str, Any]:
@@ -27,4 +28,7 @@ def build_basic_message(t: str, c: MessageSendConfiguration) -> dict[str, Any]:
 
 
 def build_basic_request(t: str, c: MessageSendConfiguration) -> SendMessageRequest:
-    return SendMessageRequest(id=str(uuid4()), params=MessageSendParams(**build_basic_message(t, c)))
+    return SendMessageRequest(
+        id=str(uuid4()),
+        params=MessageSendParams(**build_basic_message(t, c))
+    )

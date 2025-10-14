@@ -21,16 +21,18 @@ class StateAgent(bdi.BDIAgent):
         super().__init__("state.asl")
 
 
-    def extract_reply_from_beliefs(self, a):
-        r = self.asp_agent.beliefs[(a, 1)]
-        tmp = 'nothing'
-        for e in r:
-            tmp = e
+    def extract_reply_from_beliefs(self, a:str):
+        r = self.asp_agent.beliefs[(a, 1)] # fixme : arity
+        assert isinstance(r, set)
+        if r == set():
+            return None
+        else:
+            tmp = next(iter(r))
+            assert isinstance(tmp, agentspeak.Literal)
+            assert tmp.functor == a
+            assert isinstance(tmp.args, tuple)
+            return tmp.args[0]
 
-        if isinstance(tmp, agentspeak.Literal):
-            tmp = tmp.args[0]
-
-        return tmp
 
     def ask(self, s:str) -> str:
         return str(self.extract_reply_from_beliefs(s))
