@@ -34,8 +34,12 @@ class StateAgent(bdi.BDIAgent):
             return tmp.args[0]
 
 
-    def ask(self, s:str) -> str:
-        return str(self.extract_reply_from_beliefs(s))
+    def ask(self, s:str) -> str | None:
+        r = self.extract_reply_from_beliefs(s)
+        if r is not None :
+            return str(r)
+        else:
+            return None
 
 
 
@@ -71,7 +75,10 @@ class StateAgentExecutor(AgentExecutor):
             await output_event_queue.enqueue_event(new_agent_text_message("Tell received."))
         elif m.illocution == 'ask':
             result = self.agent.ask(m.content)
-            await output_event_queue.enqueue_event(new_agent_text_message(result))
+            if result is not None:
+                await output_event_queue.enqueue_event(new_agent_text_message(result))
+            else:
+                pass # do not reply
         else :
             print("Cannot manage illocution " + m.illocution)
 
