@@ -33,9 +33,16 @@ def skill_of_ASLSkill(s: ASLSkill) -> AgentSkill:
     )
 
 
+PROTOCOL_URI = "https://github.com/Julien-Cohen/a2a-agentspeak/blob/main/a2a_agentspeak/MOSAICO_A2A_AGENTSPEAK_PROTOCOL"
+EXTENSION = AgentExtension(
+    uri=PROTOCOL_URI, description="MOSAICO A2A AgentSpeak", required=True
+)
+
+
 def build_agent_card(
     name: str, doc: str, url: str, skills: list[ASLSkill]
 ) -> AgentCard:
+
     return AgentCard(
         name=name,
         description=doc,
@@ -46,13 +53,7 @@ def build_agent_card(
         capabilities=AgentCapabilities(
             streaming=False,
             push_notifications=True,
-            extensions=[
-                AgentExtension(
-                    uri="MOSAICO/A2A_AGENTSPEAK_PROTOCOL",
-                    description="MOSAICO A2A AgentSpeak",
-                    required=True,
-                )
-            ],
+            extensions=[EXTENSION],
         ),
         skills=[skill_of_ASLSkill(s) for s in skills],
         supports_authenticated_extended_card=False,
