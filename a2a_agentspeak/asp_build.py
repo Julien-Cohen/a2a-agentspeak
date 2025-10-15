@@ -14,6 +14,10 @@ from a2a.server.tasks import InMemoryTaskStore
 
 from a2a_agentspeak.bdi import BDIAgentExecutor
 
+import agentspeak
+
+from a2a_agentspeak.check import check_achievement, check_input_belief, check_ask_belief
+
 
 @dataclass
 class ASLSkill:
@@ -61,6 +65,7 @@ def build_agent_card(
 
 
 class AgentSpeakInterface:
+    skills: list[ASLSkill]
 
     def __init__(self, name, doc, url, implementation: str):
         self.skills = []
@@ -70,13 +75,15 @@ class AgentSpeakInterface:
         self.implementation = implementation
 
     def publish_ask(self, id, doc, literal):
-        self.skills.append(ASLSkill(id, doc, literal, "ask"))
+        self.skills.append(ASLSkill(id=id, doc=doc, literal=literal, illocution="ask"))
 
     def publish_listen(self, id, doc, literal):
-        self.skills.append(ASLSkill(id, doc, literal, "tell"))
+        self.skills.append(ASLSkill(id=id, doc=doc, literal=literal, illocution="tell"))
 
     def publish_obey(self, id, doc, literal):
-        self.skills.append(ASLSkill(id, doc, literal, "achieve"))
+        self.skills.append(
+            ASLSkill(id=id, doc=doc, literal=literal, illocution="achieve")
+        )
 
     def build_card(self):
         return build_agent_card(self.name, self.doc, self.url, self.skills)
@@ -97,7 +104,42 @@ class AgentSpeakInterface:
          * belief literals which can be asked must occur in the implementation (we do not consider beliefs that are perceived during execution and which are not handled by the start implementation)
          * beliefs that are told to that agent must occur too in the start implementation.
         """
-        print("WARNING: implementation not checked against interface (FIXME).")
+        LOGGER = agentspeak.get_logger(__name__)
+        with open(self.implementation) as source:
+            log = agentspeak.Log(LOGGER, 3)
+            tokens = agentspeak.lexer.TokenStream(source, log)
+            ast_agent: agentspeak.parser.ASTAgent = agentspeak.parser.parse(
+                source.name, tokens, log
+            )
+            log.throw()
+
+        # exists
+        for s in self.skills:
+            if s.illocution == "achieve":
+                if not check_achievement(s.literal, ast_agent):
+                    print(s.literal + " invalidated.")
+                    return False
+                else:
+                    print("achievement " + s.literal + " ok.")
+            elif s.illocution == "tell":
+                if not check_input_belief(s.literal, ast_agent):
+                    print(s.literal + " invalidated.")
+                    return False
+                else:
+                    print("tell belief " + s.literal + " ok.")
+
+            elif s.illocution == "ask":
+                if not check_ask_belief(s.literal, ast_agent):
+                    print(s.literal + " invalidated.")
+                    return False
+                else:
+                    print("ask belief " + s.literal + " ok.")
+            else:
+                print(
+                    "WARNING: implementation not checked against skill in the interface: "
+                    + str(s)
+                    + " (FIXME)"
+                )
         return True  # fixme
 
 
