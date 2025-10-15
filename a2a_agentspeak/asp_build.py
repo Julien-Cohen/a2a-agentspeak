@@ -90,6 +90,16 @@ class AgentSpeakInterface:
             agent_card=self.build_card(), http_handler=request_handler
         )
 
+    def check(self) -> bool:
+        """Check that the public interface correspond to actual triggers in implementation.
+        More precisely:
+         * achievements declared in the interface must have a trigger (we do not consider plans that would be added dynamically with askHow or tellHow).
+         * belief literals which can be asked must occur in the implementation (we do not consider beliefs that are perceived during execution and which are not handled by the start implementation)
+         * beliefs that are told to that agent must occur too in the start implementation.
+        """
+        print("WARNING: implementation not checked against interface (FIXME).")
+        return True  # fixme
+
 
 def from_file(intf: str, impl: str, url: str):
     with open(intf, "r") as f:
@@ -119,4 +129,9 @@ def from_file(intf: str, impl: str, url: str):
             else:
                 print("line ignored: " + l)
 
-        return a
+        if not (a.check()):
+            raise Exception(
+                "The specified interface does not match the specified implementation."
+            )
+        else:
+            return a
