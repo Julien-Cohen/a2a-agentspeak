@@ -10,6 +10,7 @@ from asl_message import AgentSpeakMessage
 
 import bdi
 
+from conversion import asl_of_a2a
 
 class StateAgent(bdi.BDIAgent):
     """State Agent."""
@@ -44,11 +45,6 @@ class StateAgent(bdi.BDIAgent):
 
 
 
-def decode(s:str, sender:str) -> AgentSpeakMessage:
-    s2 = s.removeprefix("(").removesuffix(")")
-    s3 = s2.split(",")
-    return AgentSpeakMessage(s3[0], s3[1], sender)
-
 class StateAgentExecutor(AgentExecutor):
     """Test AgentExecutor Implementation."""
 
@@ -60,13 +56,8 @@ class StateAgentExecutor(AgentExecutor):
         context: RequestContext,
         output_event_queue: EventQueue,
     ) -> None:
-        if context.configuration == None:
-            sender = "no config"
-        elif context.configuration.push_notification_config == None:
-            sender = "no push config"
-        else:
-            sender = context.configuration.push_notification_config.url
-        m = decode(context.get_user_input(), sender)
+
+        m : AgentSpeakMessage = asl_of_a2a(context)
 
         if m.illocution == 'achieve':
             self.agent.on_receive(m)
