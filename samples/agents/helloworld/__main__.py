@@ -1,54 +1,40 @@
 import threading
 import uvicorn
 
-from a2a.server.apps import A2AStarletteApplication
-from a2a.server.request_handlers import DefaultRequestHandler
-from a2a.server.tasks import InMemoryTaskStore
-
-from bdi import BDIAgentExecutor
-
-from asi import ASLSkill, build_agent_card
+from asi import AgentSpeakInterface
 
 
 if __name__ == "__main__":
 
-    skill1 = ASLSkill(
-        id="number-provider",
-        doc="Returns a number which depends on an internal state.",
-        literal="secret",
-        illocution="ask",
-    )
-    skill2 = ASLSkill(
-        id="ready-skill",
-        doc="Change internal state on ready",
-        literal="ready",
-        illocution="tell",
-    )
+    # define agent interface and implementation
 
-    skill3 = ASLSkill(
-        id="ping-skill",
-        doc="handle a ping request",
-        literal="ping",
-        illocution="achieve",
-    )
-
-    # This will be the public-facing agent card
-    public_agent_card = build_agent_card(
+    a = AgentSpeakInterface(
         "State Agent",
         "An agent with a state that returns a number on request. (Understands AgentSpeak messages)",
         "http://localhost:9999/",
-        [skill1, skill2, skill3],
+        "state.asl",
     )
 
-    request_handler = DefaultRequestHandler(
-        agent_executor=BDIAgentExecutor("state.asl"),
-        task_store=InMemoryTaskStore(),
+    a.publish_ask(
+        id="number-provider",
+        doc="Returns a number which depends on an internal state.",
+        literal="secret",
     )
 
-    server = A2AStarletteApplication(
-        agent_card=public_agent_card,
-        http_handler=request_handler,
+    a.publish_listen(
+        id="ready-skill",
+        doc="Change internal state on ready",
+        literal="ready",
     )
+
+    a.publish_obey(
+        id="ping-skill",
+        doc="handle a ping request",
+        literal="ping",
+    )
+
+    # build and run the a2a server
+    server = a.build_server()
 
     def start():
         uvicorn.run(server.build(), host="0.0.0.0", port=9999)

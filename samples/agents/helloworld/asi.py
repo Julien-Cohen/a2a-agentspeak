@@ -7,6 +7,13 @@ from a2a.types import (
 )
 
 
+from a2a.server.apps import A2AStarletteApplication
+from a2a.server.request_handlers import DefaultRequestHandler
+from a2a.server.tasks import InMemoryTaskStore
+
+from bdi import BDIAgentExecutor
+
+
 @dataclass
 class ASLSkill:
     id: str
@@ -39,3 +46,34 @@ def build_agent_card(
         skills=[skill_of_ASLSkill(s) for s in skills],
         supports_authenticated_extended_card=False,
     )
+
+
+class AgentSpeakInterface:
+
+    def __init__(self, name, doc, url, implementation: str):
+        self.skills = []
+        self.name = name
+        self.doc = doc
+        self.url = url
+        self.implementation = implementation
+
+    def publish_ask(self, id, doc, literal):
+        self.skills.append(ASLSkill(id, doc, literal, "ask"))
+
+    def publish_listen(self, id, doc, literal):
+        self.skills.append(ASLSkill(id, doc, literal, "tell"))
+
+    def publish_obey(self, id, doc, literal):
+        self.skills.append(ASLSkill(id, doc, literal, "achieve"))
+
+    def build_card(self):
+        return build_agent_card(self.name, self.doc, self.url, self.skills)
+
+    def build_server(self):
+        request_handler = DefaultRequestHandler(
+            agent_executor=BDIAgentExecutor(self.implementation),
+            task_store=InMemoryTaskStore(),
+        )
+        return A2AStarletteApplication(
+            agent_card=self.build_card(), http_handler=request_handler
+        )
