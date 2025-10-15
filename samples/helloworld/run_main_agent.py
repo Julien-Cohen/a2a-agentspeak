@@ -3,13 +3,13 @@ import context
 import threading
 import uvicorn
 
-from a2a_agentspeak.asi import from_asi_file
+from a2a_agentspeak.asp_build import from_file
 
 
 if __name__ == "__main__":
 
     # define agent interface and implementation
-    a = from_asi_file("state.asi", "http://localhost:9999/", "state.asl")
+    a = from_file("state.asi", "http://localhost:9999/", "state.asl")
 
     # build and run the a2a server
     server = a.build_server()
