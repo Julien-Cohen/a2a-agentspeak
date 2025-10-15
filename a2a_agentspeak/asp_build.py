@@ -2,6 +2,7 @@ from dataclasses import dataclass
 
 from a2a.types import (
     AgentCapabilities,
+    AgentExtension,
     AgentCard,
     AgentSkill,
 )
@@ -42,7 +43,17 @@ def build_agent_card(
         version="1.0.0",
         default_input_modes=["text"],
         default_output_modes=["text"],
-        capabilities=AgentCapabilities(streaming=False, push_notifications=True),
+        capabilities=AgentCapabilities(
+            streaming=False,
+            push_notifications=True,
+            extensions=[
+                AgentExtension(
+                    uri="MOSAICO/A2A_AGENTSPEAK_PROTOCOL",
+                    description="MOSAICO A2A AgentSpeak",
+                    required=True,
+                )
+            ],
+        ),
         skills=[skill_of_ASLSkill(s) for s in skills],
         supports_authenticated_extended_card=False,
     )

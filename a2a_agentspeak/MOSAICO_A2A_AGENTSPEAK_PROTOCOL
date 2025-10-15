@@ -1,0 +1,12 @@
+The MOSAICO A2A AgentSpeak protocol is designed to interact with AgentSpeak agents on top of A2A protocol.
+
+The content of messages must be structured as follows :
+    (illocution,literal)
+
+Example 1 : (tell, ready)
+
+Example 2 : (ask, secret)
+
+Example 3 : (achieve, ping)
+
+The set of illocutions and literals a given agent can handle is given in its agent card skills.
