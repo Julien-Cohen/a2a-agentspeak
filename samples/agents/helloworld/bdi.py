@@ -111,3 +111,25 @@ class BDIAgent:
         """This procedure inserts an achievement with its documentation in the catalog of this agent,
         which will be able to publish it to tell others how to use it."""
         self.published_commands.append(CatalogEntry(command, arity, doc))
+
+    def extract_from_beliefs(self, a:str):
+        r = self.asp_agent.beliefs[(a, 1)] # fixme : arity
+        assert isinstance(r, set)
+        if r == set():
+            return None
+        else:
+            tmp = next(iter(r))
+            assert isinstance(tmp, agentspeak.Literal)
+            assert tmp.functor == a
+            assert isinstance(tmp.args, tuple)
+            return tmp.args[0]
+
+    def ask(self, s:str) -> str | None:
+        """ in A2A, each received message has an event queue to post responses.
+         This is not the case in AgentSpeak.
+         Here we add an illocution for requests that need an answer : ask"""
+        r = self.extract_from_beliefs(s)
+        if r is not None :
+            return str(r)
+        else:
+            return None

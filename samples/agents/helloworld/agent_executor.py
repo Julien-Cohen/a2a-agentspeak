@@ -15,33 +15,9 @@ from conversion import asl_of_a2a
 class StateAgent(bdi.BDIAgent):
     """State Agent."""
 
-    # in A2A, each received message has an event queue to post responses.
-    # This is not the case in AgentSpeak.
-    # Here we add an illocution for requests that need an answer : ask
-
     def __init__(self):
         super().__init__("state.asl")
 
-
-    def extract_reply_from_beliefs(self, a:str):
-        r = self.asp_agent.beliefs[(a, 1)] # fixme : arity
-        assert isinstance(r, set)
-        if r == set():
-            return None
-        else:
-            tmp = next(iter(r))
-            assert isinstance(tmp, agentspeak.Literal)
-            assert tmp.functor == a
-            assert isinstance(tmp.args, tuple)
-            return tmp.args[0]
-
-
-    def ask(self, s:str) -> str | None:
-        r = self.extract_reply_from_beliefs(s)
-        if r is not None :
-            return str(r)
-        else:
-            return None
 
 
 
