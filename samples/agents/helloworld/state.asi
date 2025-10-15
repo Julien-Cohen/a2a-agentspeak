@@ -1,0 +1,6 @@
+name = State Agent
+doc = An agent with a state that returns a number on request. (Understands AgentSpeak messages)
+
+belief : secret : Returns a number which depends on an internal state.
+input : ready : Change internal state on ready
+action : ping : handle a ping request
