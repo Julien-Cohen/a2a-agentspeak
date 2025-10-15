@@ -77,3 +77,34 @@ class AgentSpeakInterface:
         return A2AStarletteApplication(
             agent_card=self.build_card(), http_handler=request_handler
         )
+
+
+def from_asi_file(intf: str, url: str, impl: str):
+    with open(intf, "r") as f:
+        l = f.readline()
+        assert l.startswith("name = ")
+        name = l.removeprefix("name = ")
+
+        l = f.readline()
+        assert l.startswith("doc = ")
+        doc = l.removeprefix("doc = ")
+
+        a: AgentSpeakInterface = AgentSpeakInterface(name, doc, url, impl)
+
+        for l in f:
+
+            if l == "\n":
+                pass
+            elif l.startswith("belief"):
+                [_, b, c] = l.split(" : ")
+                a.publish_ask(b, c, b)
+            elif l.startswith("input"):
+                [_, b, c] = l.split(" : ")
+                a.publish_listen(b, c, b)
+            elif l.startswith("action"):
+                [_, b, c] = l.split(" : ")
+                a.publish_obey(b, c, b)
+            else:
+                print("line ignored: " + l)
+
+        return a
