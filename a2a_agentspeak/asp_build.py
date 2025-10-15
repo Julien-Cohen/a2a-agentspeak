@@ -79,7 +79,7 @@ class AgentSpeakInterface:
         )
 
 
-def from_file(intf: str, url: str, impl: str):
+def from_file(intf: str, impl: str, url: str):
     with open(intf, "r") as f:
         l = f.readline()
         assert l.startswith("name = ")
