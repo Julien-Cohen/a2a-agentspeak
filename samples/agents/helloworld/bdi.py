@@ -27,7 +27,7 @@ class CatalogEntry:
     meaning: str
 
 
-async def do_send(url:str):
+async def do_send(url:str, content: str):
     async with httpx.AsyncClient() as httpx_client:
 
         resolver = A2ACardResolver(
@@ -45,7 +45,7 @@ async def do_send(url:str):
                 httpx_client = httpx_client, url = url
             )
 
-            request = message_tools.build_basic_request('PING', None)
+            request = message_tools.build_basic_request(content, None)
             response = await client.send_message(request)
             print("Answer received from PING: " + message_tools.extract_text(response))
 
@@ -100,9 +100,15 @@ class BDIAgent:
             def _print_float(a):
                 print(str(a))
 
-            @actions.add_procedure(".send_url", (agentspeak.Literal,))
-            def _send_url(u:agentspeak.Literal):
-                asyncio.create_task(do_send(str(u)))
+            @actions.add_procedure(
+                    ".send_to_url",
+                       (
+                              agentspeak.Literal,
+                              str
+                            )
+            )
+            def _send_to_url(u:agentspeak.Literal, t:str):
+                asyncio.create_task(do_send(str(u),t))
 
 
     def process_message(self, msg: AgentSpeakMessage):

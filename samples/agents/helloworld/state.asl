@@ -8,7 +8,7 @@ secret(-1).
 
 +ready[source(S)]<-
     .print("I received the ready signal from", S) ;
-    .send_url(S).
+    .send_to_url(S, "READY OK").
 
 
 +!ping : ready <-
