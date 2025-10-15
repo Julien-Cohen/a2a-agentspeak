@@ -11,8 +11,10 @@ import agentspeak.stdlib
 from dataclasses import dataclass
 
 from a2a.client import A2ACardResolver, A2AClient, A2AClientJSONError, A2AClientHTTPError
+from a2a.server.events import EventQueue
+from a2a.utils import new_agent_text_message
 
-import asl_message
+from asl_message import AgentSpeakMessage
 
 @dataclass
 class CatalogEntry:
@@ -51,6 +53,8 @@ async def do_send(url:str):
         except Exception as e:
             print('---FAIL---: ASL agent failed to send (other). ' + str(e))
 
+async def reply(output_event_queue: EventQueue, r: str):
+    await output_event_queue.enqueue_event(new_agent_text_message(r))
 
 class BDIAgent:
     def __init__(self, asl_file):
@@ -97,7 +101,7 @@ class BDIAgent:
                 asyncio.create_task(do_send(str(u)))
 
 
-    def on_receive(self, msg: asl_message.AgentSpeakMessage):
+    def on_receive(self, msg: AgentSpeakMessage):
         self.asp_agent.call(
             msg.trigger(),
             msg.goal_type(),
@@ -133,3 +137,19 @@ class BDIAgent:
             return str(r)
         else:
             return None
+
+    async def act(self, m: AgentSpeakMessage, output_event_queue: EventQueue):
+            if m.illocution == 'achieve':
+                self.on_receive(m)
+                await reply(output_event_queue, "Achieve received")
+            elif m.illocution == 'tell':
+                self.on_receive(m)
+                await reply(output_event_queue, "Tell received.")
+            elif m.illocution == 'ask':
+                result = self.ask(m.content)
+                if result is not None:
+                    await reply(output_event_queue, result)
+                else:
+                    pass  # do not reply
+            else:
+                print("Cannot manage illocution " + m.illocution)
