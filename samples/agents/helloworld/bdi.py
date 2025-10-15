@@ -105,7 +105,8 @@ class BDIAgent:
                 asyncio.create_task(do_send(str(u)))
 
 
-    def on_receive(self, msg: AgentSpeakMessage):
+    def process_message(self, msg: AgentSpeakMessage):
+        """ Process tell, and achieve requests following the AgentSpeak defined behavior."""
         self.asp_agent.call(
             msg.trigger(),
             msg.goal_type(),
@@ -132,25 +133,29 @@ class BDIAgent:
             assert isinstance(tmp.args, tuple)
             return tmp.args[0]
 
-    def ask(self, s:str) -> str | None:
-        """ in A2A, each received message has an event queue to post responses.
-         This is not the case in AgentSpeak.
-         Here we add an illocution for requests that need an answer : ask"""
+    def get_belief(self, s:str) -> str | None:
         r = self.extract_from_beliefs(s)
         if r is not None :
             return str(r)
         else:
             return None
 
-    async def act(self, m: AgentSpeakMessage, output_event_queue: EventQueue):
+    async def preprocess_message(self, m: AgentSpeakMessage, output_event_queue: EventQueue):
+            """Answer to a message depending on the nature of a message:
+                - reply with the required information for ask illocutions
+                - reply with an ackowledgement and process the request otherwise.
+            """
             if m.illocution == 'achieve':
-                self.on_receive(m)
+                self.process_message(m)
                 await reply(output_event_queue, "Achieve received")
             elif m.illocution == 'tell':
-                self.on_receive(m)
+                self.process_message(m)
                 await reply(output_event_queue, "Tell received.")
             elif m.illocution == 'ask':
-                result = self.ask(m.content)
+                """ in A2A, each received message has an event queue to post responses.
+                         This is not the case in AgentSpeak.
+                         Here we add an illocution for requests that need an answer : ask"""
+                result = self.get_belief(m.content)
                 if result is not None:
                     await reply(output_event_queue, result)
                 else:
@@ -159,10 +164,9 @@ class BDIAgent:
                 print("Cannot manage illocution " + m.illocution)
 
 class BDIAgentExecutor(AgentExecutor):
-    """Test AgentExecutor Implementation."""
 
     def __init__(self, asl_file : str):
-        self.agent = BDIAgent(asl_file)
+        self.bdi_agent = BDIAgent(asl_file)
 
     async def execute(
         self,
@@ -170,7 +174,7 @@ class BDIAgentExecutor(AgentExecutor):
         output_event_queue: EventQueue,
     ) -> None:
         m : AgentSpeakMessage = asl_of_a2a(context)
-        await self.agent.act(m, output_event_queue)
+        await self.bdi_agent.preprocess_message(m, output_event_queue)
 
 
     async def cancel(
