@@ -157,7 +157,7 @@ class BDIAgent:
             elif m.illocution == 'tell':
                 self.process_message(m)
                 await reply(output_event_queue, "Tell received.")
-            elif m.illocution == 'ask':
+            elif m.illocution == 'ask': #fixme : also check that the requested belief is public.
                 """ in A2A, each received message has an event queue to post responses.
                          This is not the case in AgentSpeak.
                          Here we add an illocution for requests that need an answer : ask"""

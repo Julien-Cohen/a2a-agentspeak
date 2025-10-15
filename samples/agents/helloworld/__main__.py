@@ -17,12 +17,26 @@ if __name__ == '__main__':
     number_provider_skill = AgentSkill(
         id='number-provider',
         name='provide a number',
-        description='Returns a different number depending on an internal state that can be changed. Achieve ping to check connection. Tell ready to change state. Ask get to get the number',
-        tags=['get', 'state'],
-        examples=['(achieve, ping)', '(tell, ready)', '(ask,secret)'],
+        description='Returns a number which depends on an internal state. Ask secret to get the number',
+        tags=['secret'],
+        examples=['(ask,secret)'],
     )
 
+    ready_skill = AgentSkill(
+        id='ready-skill',
+        name='get ready',
+        description='Change internal state on ready',
+        tags=['ready'],
+        examples=['(tell, ready)'],
+    )
 
+    ping_skill = AgentSkill(
+        id='ping-skill',
+        name='handle ping',
+        description='handle a ping request',
+        tags=['ping'],
+        examples=['(achieve, ping)'],
+    )
 
     # This will be the public-facing agent card
     public_agent_card = AgentCard(
@@ -33,7 +47,7 @@ if __name__ == '__main__':
         default_input_modes=['text'],
         default_output_modes=['text'],
         capabilities=AgentCapabilities(streaming=False, push_notifications=True),
-        skills=[number_provider_skill],
+        skills=[number_provider_skill, ready_skill, ping_skill],
         supports_authenticated_extended_card=False,
     )
 
