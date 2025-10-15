@@ -1,7 +1,9 @@
+import context
+
 import threading
 import uvicorn
 
-from samples.agents.helloworld.bdi.asi import from_asi_file
+from a2a_agentspeak.asi import from_asi_file
 
 
 if __name__ == "__main__":
