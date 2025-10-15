@@ -1,7 +1,7 @@
 import threading
 import uvicorn
 
-from asi import AgentSpeakInterface, from_asi_file
+from samples.agents.helloworld.bdi.asi import from_asi_file
 
 
 if __name__ == "__main__":

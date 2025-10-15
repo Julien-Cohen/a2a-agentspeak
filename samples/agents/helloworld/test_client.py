@@ -22,7 +22,10 @@ from a2a.server.tasks import InMemoryTaskStore
 from a2a.server.events import EventQueue
 import uvicorn
 
-from message_tools import build_basic_request, extract_text
+from samples.agents.helloworld.bdi.message_tools import (
+    build_basic_request,
+    extract_text,
+)
 
 
 class ClientAgentExecutor(AgentExecutor):
