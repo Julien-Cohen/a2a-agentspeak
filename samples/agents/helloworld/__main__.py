@@ -4,53 +4,41 @@ import uvicorn
 from a2a.server.apps import A2AStarletteApplication
 from a2a.server.request_handlers import DefaultRequestHandler
 from a2a.server.tasks import InMemoryTaskStore
-from a2a.types import (
-    AgentCapabilities,
-    AgentCard,
-    AgentSkill,
-)
+
 from bdi import BDIAgentExecutor
 
+from asi import ASLSkill, build_agent_card
 
-if __name__ == '__main__':
 
-    number_provider_skill = AgentSkill(
-        id='number-provider',
-        name='provide a number',
-        description='Returns a number which depends on an internal state. Ask secret to get the number',
-        tags=['secret'],
-        examples=['(ask,secret)'],
+if __name__ == "__main__":
+
+    skill1 = ASLSkill(
+        id="number-provider",
+        doc="Returns a number which depends on an internal state.",
+        literal="secret",
+        illocution="ask",
+    )
+    skill2 = ASLSkill(
+        id="ready-skill",
+        doc="Change internal state on ready",
+        literal="ready",
+        illocution="tell",
     )
 
-    ready_skill = AgentSkill(
-        id='ready-skill',
-        name='get ready',
-        description='Change internal state on ready',
-        tags=['ready'],
-        examples=['(tell, ready)'],
-    )
-
-    ping_skill = AgentSkill(
-        id='ping-skill',
-        name='handle ping',
-        description='handle a ping request',
-        tags=['ping'],
-        examples=['(achieve, ping)'],
+    skill3 = ASLSkill(
+        id="ping-skill",
+        doc="handle a ping request",
+        literal="ping",
+        illocution="achieve",
     )
 
     # This will be the public-facing agent card
-    public_agent_card = AgentCard(
-        name='State Agent',
-        description='An agent with a state that returns a number on request. (Understands AgentSpeak messages)',
-        url='http://localhost:9999/',
-        version='1.0.0',
-        default_input_modes=['text'],
-        default_output_modes=['text'],
-        capabilities=AgentCapabilities(streaming=False, push_notifications=True),
-        skills=[number_provider_skill, ready_skill, ping_skill],
-        supports_authenticated_extended_card=False,
+    public_agent_card = build_agent_card(
+        "State Agent",
+        "An agent with a state that returns a number on request. (Understands AgentSpeak messages)",
+        "http://localhost:9999/",
+        [skill1, skill2, skill3],
     )
-
 
     request_handler = DefaultRequestHandler(
         agent_executor=BDIAgentExecutor("state.asl"),
@@ -63,7 +51,7 @@ if __name__ == '__main__':
     )
 
     def start():
-        uvicorn.run(server.build(), host='0.0.0.0', port=9999)
+        uvicorn.run(server.build(), host="0.0.0.0", port=9999)
 
     threading.Thread(target=start).start()
     print("-running a2a-server for state agent-")
