@@ -16,6 +16,10 @@ from a2a.utils import new_agent_text_message
 
 from asl_message import AgentSpeakMessage
 
+from a2a.server.agent_execution import AgentExecutor, RequestContext
+
+from conversion import asl_of_a2a
+
 @dataclass
 class CatalogEntry:
     achievement: str
@@ -153,3 +157,23 @@ class BDIAgent:
                     pass  # do not reply
             else:
                 print("Cannot manage illocution " + m.illocution)
+
+class BDIAgentExecutor(AgentExecutor):
+    """Test AgentExecutor Implementation."""
+
+    def __init__(self, asl_file : str):
+        self.agent = BDIAgent(asl_file)
+
+    async def execute(
+        self,
+        context: RequestContext,
+        output_event_queue: EventQueue,
+    ) -> None:
+        m : AgentSpeakMessage = asl_of_a2a(context)
+        await self.agent.act(m, output_event_queue)
+
+
+    async def cancel(
+        self, context: RequestContext, event_queue: EventQueue
+    ) -> None:
+        raise Exception('cancel not supported')

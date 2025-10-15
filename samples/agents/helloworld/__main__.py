@@ -9,9 +9,7 @@ from a2a.types import (
     AgentCard,
     AgentSkill,
 )
-from agent_executor import (
-    StateAgentExecutor,  # type: ignore[import-untyped]
-)
+from bdi import BDIAgentExecutor
 
 
 if __name__ == '__main__':
@@ -41,7 +39,7 @@ if __name__ == '__main__':
 
 
     request_handler = DefaultRequestHandler(
-        agent_executor=StateAgentExecutor(),
+        agent_executor=BDIAgentExecutor("state.asl"),
         task_store=InMemoryTaskStore(),
     )
 
