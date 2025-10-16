@@ -120,20 +120,20 @@ class AgentSpeakInterface:
                     print(s.literal + " invalidated.")
                     return False
                 else:
-                    print("achievement " + s.literal + " ok.")
+                    print("Check achievement " + s.literal + " ok.")
             elif s.illocution == "tell":
                 if not check_input_belief(s.literal, ast_agent):
                     print(s.literal + " invalidated.")
                     return False
                 else:
-                    print("tell belief " + s.literal + " ok.")
+                    print("Check tell belief " + s.literal + " ok.")
 
             elif s.illocution == "ask":
                 if not check_ask_belief(s.literal, ast_agent):
                     print(s.literal + " invalidated.")
                     return False
                 else:
-                    print("ask belief " + s.literal + " ok.")
+                    print("Check ask belief " + s.literal + " ok.")
             else:
                 print(
                     "WARNING: implementation not checked against skill in the interface: "

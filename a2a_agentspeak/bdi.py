@@ -116,6 +116,13 @@ class BDIAgent:
             assert check_illoc(illoc)
             asyncio.create_task(do_send(str(u), str(illoc), str(t)))
 
+        @actions.add_procedure(
+            ".send_str", (str, agentspeak.Literal, agentspeak.Literal)
+        )
+        def _send_to_url_str(u: str, illoc: agentspeak.Literal, t: agentspeak.Literal):
+            assert check_illoc(illoc)
+            asyncio.create_task(do_send(u, str(illoc), str(t)))
+
     def process_message(self, msg: AgentSpeakMessage):
         """Process tell, and achieve requests following the AgentSpeak defined behavior."""
         self.asp_agent.call(
