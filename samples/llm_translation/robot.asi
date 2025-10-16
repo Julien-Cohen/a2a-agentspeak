@@ -1,0 +1,7 @@
+name = Robot Agent
+doc = A robot that can move and jump. (Understands AgentSpeak messages)
+
+
+action : do_move : (arity 0) Move the robot.
+action : do_jump : (arity 0) Make the robot jump.
+action : move_by : (arity 1) Move the robot by the distance given as parameter (in cm).

@@ -17,6 +17,7 @@ dependencies = [
     "starlette>=0.46.2",
     "uvicorn>=0.34.2",
     "agentspeak>=0.2.2",
+    "mistralai>=1.9.11",
 ]
 
 [tool.hatch.build.targets.wheel]
