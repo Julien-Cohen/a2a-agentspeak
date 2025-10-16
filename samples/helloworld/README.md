@@ -12,13 +12,13 @@ Hello World example agent that only returns Message events
 1. Start the server
 
    ```bash
-   uv run .
+   uv run run_main_agent.py
    ```
 
 2. Run the test client
 
    ```bash
-   uv run test_client.py
+   uv run run_test_client.py
    ```
 
 ## Disclaimer
