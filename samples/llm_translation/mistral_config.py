@@ -17,9 +17,7 @@ def ask_llm_for_translation(catalog: str, user_request: str):
         messages=[
             {
                 "role": "system",
-                "content": "Your task is to translate a human request into an AgentSpeak goal for a robot."
-                + " Answer COMPLETE is the specification is well covered."
-                + " Answer PARTIAL otherwise.",
+                "content": "Your task is to translate a human request into an AgentSpeak goal for a robot.",
             },
             {
                 "role": "user",
