@@ -21,33 +21,6 @@ Hello World example agent that only returns Message events
    uv run test_client.py
    ```
 
-## Build Container Image
-
-Agent can also be built using a container file.
-
-1. Navigate to the directory `samples/python/agents/helloworld` directory:
-
-  ```bash
-  cd samples/python/agents/helloworld
-  ```
-
-2. Build the container file
-
-    ```bash
-    podman build . -t helloworld-a2a-server
-    ```
-
-> [!Tip]  
-> Podman is a drop-in replacement for `docker` which can also be used in these commands.
-
-3. Run you container
-
-    ```bash
-    podman run -p 9999:9999 helloworld-a2a-server
-    ```
-
-
-
 ## Disclaimer
 Important: The sample code provided is for demonstration purposes and illustrates the mechanics of the Agent-to-Agent (A2A) protocol. When building production applications, it is critical to treat any agent operating outside of your direct control as a potentially untrusted entity.
 
