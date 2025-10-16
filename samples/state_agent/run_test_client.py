@@ -34,9 +34,9 @@ class ClientAgentExecutor(AgentExecutor):
         context: RequestContext,
         output_event_queue: EventQueue,
     ) -> None:
-        print("EXECUTE FROM CLIENT AGENT A2A SERVER")
+        print("Incoming message: " + context.get_user_input())
         await output_event_queue.enqueue_event(
-            new_agent_text_message("MESSAGE_RECEIVED")
+            new_agent_text_message("MESSAGE RECEIVED")
         )
 
     async def cancel(self, context: RequestContext, event_queue: EventQueue) -> None:
@@ -122,30 +122,29 @@ async def main() -> None:
         # First message (achieve)
         request = build_basic_request("(achieve,ping)", config)
         response = await client.send_message(request)
-        print("Answer received from state agent: " + extract_text(response))
+        print("Synchronous reply received: " + extract_text(response))
 
         # Another message (ask)
         request = build_basic_request("(ask,secret)", config)
         response = await client.send_message(request)
-        print("Answer received from state agent: " + extract_text(response))
+        print("Synchronous reply received: " + extract_text(response))
 
         # Another message (tell)
         request = build_basic_request("(tell,ready)", config)
         response = await client.send_message(request)
         print(
-            "Answer received for tell/ready from state agent: "
-            + str(extract_text(response))
+            "Synchronous reply received for tell/ready: " + str(extract_text(response))
         )
 
         # Another message (achieve)
         request = build_basic_request("(achieve,ping)", config)
         response = await client.send_message(request)
-        print("Answer received from state agent: " + extract_text(response))
+        print("Synchronous reply received: " + extract_text(response))
 
         # Another message (ask)
         request = build_basic_request("(ask,secret)", config)
         response = await client.send_message(request)
-        print("Answer received from state agent: " + extract_text(response))
+        print("Synchronous reply received: " + extract_text(response))
 
 
 if __name__ == "__main__":

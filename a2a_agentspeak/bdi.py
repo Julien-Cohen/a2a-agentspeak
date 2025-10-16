@@ -52,7 +52,10 @@ async def do_send(url: str, content: str):
 
             request = message_tools.build_basic_request(content, None)
             response = await client.send_message(request)
-            print("Answer received from PING: " + message_tools.extract_text(response))
+            print(
+                "Message sent and synchronous answer received: "
+                + message_tools.extract_text(response)
+            )
 
         except A2AClientJSONError as e:
             print("---FAIL---: ASL agent failed to send (JSON). " + str(e))
@@ -102,8 +105,9 @@ class BDIAgent:
         def _print_float(a):
             print(str(a))
 
-        @actions.add_procedure(".send", (agentspeak.Literal, str))
-        def _send_to_url(u: agentspeak.Literal, t: str):
+        @actions.add_procedure(".send", (agentspeak.Literal, agentspeak.Literal, str))
+        def _send_to_url(u: agentspeak.Literal, illoc, t: str):
+            # fixme : illoc ignored
             asyncio.create_task(do_send(str(u), t))
 
     def process_message(self, msg: AgentSpeakMessage):
