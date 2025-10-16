@@ -8,7 +8,7 @@ secret(-1).
 
 +ready[source(S)]<-
     .print("I received the ready signal from", S) ;
-    .send(S, tell, "READY OK").
+    .send(S, tell, agent_ready).
 
 
 +!ping : ready <-

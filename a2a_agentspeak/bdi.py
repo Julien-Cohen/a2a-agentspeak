@@ -107,10 +107,14 @@ class BDIAgent:
         def _print_float(a):
             print(str(a))
 
-        @actions.add_procedure(".send", (agentspeak.Literal, agentspeak.Literal, str))
-        def _send_to_url(u: agentspeak.Literal, illoc, t: str):
+        @actions.add_procedure(
+            ".send", (agentspeak.Literal, agentspeak.Literal, agentspeak.Literal)
+        )
+        def _send_to_url(
+            u: agentspeak.Literal, illoc: agentspeak.Literal, t: agentspeak.Literal
+        ):
             assert check_illoc(illoc)
-            asyncio.create_task(do_send(str(u), str(illoc), t))
+            asyncio.create_task(do_send(str(u), str(illoc), str(t)))
 
     def process_message(self, msg: AgentSpeakMessage):
         """Process tell, and achieve requests following the AgentSpeak defined behavior."""

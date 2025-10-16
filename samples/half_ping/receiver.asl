@@ -5,5 +5,5 @@
 
 +!ping[source(S)] <-
     .print("Received a ping from", S);
-    .send(S, tell, "pong").
+    .send(S, tell, pong).
 
