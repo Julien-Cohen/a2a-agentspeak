@@ -27,7 +27,7 @@ from a2a_agentspeak.message_tools import (
     extract_text,
 )
 
-from mistral_config import ask_llm_for_translation
+from NL_to_ASL.translator import translate
 
 request1 = "Please move dear robot."
 request2 = "Please jump now."
@@ -126,19 +126,19 @@ async def main() -> None:
         )
 
         # First message (achieve)
-        a1 = ask_llm_for_translation(str(final_agent_card_to_use.skills), request1)
+        a1 = translate(final_agent_card_to_use, request1)
         request = build_basic_request("achieve", a1, config)
         response = await client.send_message(request)
         print("Synchronous reply received: " + extract_text(response))
 
         # Another message (achieve)
-        a2 = ask_llm_for_translation(str(final_agent_card_to_use.skills), request2)
+        a2 = translate(final_agent_card_to_use, request2)
         request = build_basic_request("achieve", a2, config)
         response = await client.send_message(request)
         print("Synchronous reply received: " + extract_text(response))
 
         # Another message (achieve)
-        a3 = ask_llm_for_translation(str(final_agent_card_to_use.skills), request3)
+        a3 = translate(final_agent_card_to_use, request3)
         request = build_basic_request("achieve", a3, config)
         response = await client.send_message(request)
         print("Synchronous reply received: " + extract_text(response))
