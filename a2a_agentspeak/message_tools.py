@@ -1,34 +1,44 @@
-
-from a2a.types import (SendMessageRequest, MessageSendParams, SendMessageResponse, SendMessageSuccessResponse, Message, MessageSendConfiguration)
+import agentspeak
+from a2a.types import (
+    SendMessageRequest,
+    MessageSendParams,
+    SendMessageResponse,
+    SendMessageSuccessResponse,
+    Message,
+    MessageSendConfiguration,
+)
 
 from typing import Any
 from uuid import uuid4
 
-def extract_text (response:SendMessageResponse):
-    if (isinstance(response, SendMessageResponse)
+
+def extract_text(response: SendMessageResponse):
+    if (
+        isinstance(response, SendMessageResponse)
         and isinstance(response.root, SendMessageSuccessResponse)
-            and isinstance(response.root.result, Message)
-        ) :
-                return response.root.result.parts[0].root.text
+        and isinstance(response.root.result, Message)
+    ):
+        return response.root.result.parts[0].root.text
     else:
-        return response.model_dump(mode='json', exclude_none=True)
+        return response.model_dump(mode="json", exclude_none=True)
 
 
-def build_basic_message(t: str, c: MessageSendConfiguration) -> dict[str, Any]:
+def build_basic_message(
+    illoc: str, t: str, c: MessageSendConfiguration
+) -> dict[str, Any]:
     return {
-        'message': {
-            'role': 'user',
-            'parts': [
-                {'kind': 'text', 'text': t}
-            ],
-            'messageId': uuid4().hex,
+        "message": {
+            "role": "user",
+            "parts": [{"kind": "text", "text": "(" + illoc + "," + t + ")"}],
+            "messageId": uuid4().hex,
         },
-        'configuration': c
+        "configuration": c,
     }
 
 
-def build_basic_request(t: str, c: MessageSendConfiguration) -> SendMessageRequest:
+def build_basic_request(
+    illoc: str, t: str, c: MessageSendConfiguration
+) -> SendMessageRequest:
     return SendMessageRequest(
-        id=str(uuid4()),
-        params=MessageSendParams(**build_basic_message(t, c))
+        id=str(uuid4()), params=MessageSendParams(**build_basic_message(illoc, t, c))
     )

@@ -25,6 +25,8 @@ from a2a.server.agent_execution import AgentExecutor, RequestContext
 
 from a2a_agentspeak.conversion import asl_of_a2a
 
+from a2a_agentspeak.check import check_illoc
+
 
 @dataclass
 class CatalogEntry:
@@ -33,7 +35,7 @@ class CatalogEntry:
     meaning: str
 
 
-async def do_send(url: str, content: str):
+async def do_send(url: str, illoc: str, content: str):
     async with httpx.AsyncClient() as httpx_client:
 
         resolver = A2ACardResolver(
@@ -50,7 +52,7 @@ async def do_send(url: str, content: str):
                 url=url,
             )
 
-            request = message_tools.build_basic_request(content, None)
+            request = message_tools.build_basic_request(illoc, content, None)
             response = await client.send_message(request)
             print(
                 "Message sent and synchronous answer received: "
@@ -107,8 +109,8 @@ class BDIAgent:
 
         @actions.add_procedure(".send", (agentspeak.Literal, agentspeak.Literal, str))
         def _send_to_url(u: agentspeak.Literal, illoc, t: str):
-            # fixme : illoc ignored
-            asyncio.create_task(do_send(str(u), t))
+            assert check_illoc(illoc)
+            asyncio.create_task(do_send(str(u), str(illoc), t))
 
     def process_message(self, msg: AgentSpeakMessage):
         """Process tell, and achieve requests following the AgentSpeak defined behavior."""

@@ -120,12 +120,12 @@ async def main() -> None:
         )
 
         # First message (achieve)
-        request = build_basic_request("(achieve,ping)", config)
+        request = build_basic_request("achieve", "ping", config)
         response = await client.send_message(request)
         print("Synchronous reply received: " + extract_text(response))
 
         # Another message (achieve)
-        request = build_basic_request("(achieve,ping)", config)
+        request = build_basic_request("achieve", "ping", config)
         response = await client.send_message(request)
         print("Synchronous reply received: " + extract_text(response))
 

@@ -32,3 +32,11 @@ def check_ask_belief(literal: str, ast: agentspeak.parser.AstAgent) -> bool:
         if b.functor == literal:
             return True
     return False
+
+
+tell_illoc = agentspeak.Literal("tell")
+achieve_illoc = agentspeak.Literal("achieve")
+
+
+def check_illoc(illoc: agentspeak.Literal) -> bool:
+    return illoc == tell_illoc or illoc == achieve_illoc
