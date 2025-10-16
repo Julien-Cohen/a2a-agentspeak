@@ -102,7 +102,7 @@ class BDIAgent:
         def _print_float(a):
             print(str(a))
 
-        @actions.add_procedure(".send_to_url", (agentspeak.Literal, str))
+        @actions.add_procedure(".send", (agentspeak.Literal, str))
         def _send_to_url(u: agentspeak.Literal, t: str):
             asyncio.create_task(do_send(str(u), t))
 
