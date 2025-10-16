@@ -1,0 +1,5 @@
+name = Pingable Agent
+doc = An agent which responds to ping (Understands AgentSpeak messages)
+
+
+action : ping : handle a ping request and reply pong asynchronously
