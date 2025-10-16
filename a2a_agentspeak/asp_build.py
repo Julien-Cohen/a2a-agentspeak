@@ -88,9 +88,13 @@ class AgentSpeakInterface:
     def build_card(self):
         return build_agent_card(self.name, self.doc, self.url, self.skills)
 
-    def build_server(self):
+    def build_server(self, additional_callback=None):
+        executor = BDIAgentExecutor(
+            self.implementation, additional_callback=additional_callback
+        )
+
         request_handler = DefaultRequestHandler(
-            agent_executor=BDIAgentExecutor(self.implementation),
+            agent_executor=executor,
             task_store=InMemoryTaskStore(),
         )
         return A2AStarletteApplication(
@@ -142,8 +146,11 @@ class AgentSpeakInterface:
                 )
         return True  # fixme
 
+    def add_new_actions_callback(self, callback):
+        self.new_actions_callback = callback
 
-def from_file(intf: str, impl: str, url: str):
+
+def from_file(intf: str, impl: str, url: str) -> AgentSpeakInterface:
     with open(intf, "r") as f:
         l = f.readline()
         assert l.startswith("name = ")
