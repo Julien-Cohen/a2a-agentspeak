@@ -2,6 +2,11 @@ from a2a.types import AgentCard
 
 from NL_to_ASL.mistral_config import ask_llm_for_translation
 
+
+class LLMError(Exception):
+    pass
+
+
 system_prompt_message = {
     "role": "system",
     "content": "Your task is to translate a human request into an AgentSpeak goal",
@@ -26,9 +31,12 @@ def build_user_prompt_message(agent_type: str, catalog: str, user_request: str):
 
 
 def translate(card: AgentCard, request: str) -> str:
-    user_prompt = build_user_prompt_message(
-        str(card.description), str(card.skills), request
-    )
-    return ask_llm_for_translation(
-        system_prompt=system_prompt_message, user_prompt=user_prompt
-    )
+    try:
+        user_prompt = build_user_prompt_message(
+            str(card.description), str(card.skills), request
+        )
+        return ask_llm_for_translation(
+            system_prompt=system_prompt_message, user_prompt=user_prompt
+        )
+    except Exception as e:
+        raise LLMError()

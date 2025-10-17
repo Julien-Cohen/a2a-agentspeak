@@ -27,7 +27,7 @@ from a2a_agentspeak.codec import (
     extract_text,
 )
 
-from NL_to_ASL.translator import translate
+from NL_to_ASL.translator import translate, LLMError
 
 request1 = "Please move dear robot."
 request2 = "Please jump now."
@@ -122,22 +122,31 @@ async def main() -> None:
         logger.info("A2AClient initialized.")
 
         # First message (achieve)
-        a1 = translate(final_agent_card_to_use, request1)
-        request = build_basic_request("achieve", a1, my_url)
-        response = await client.send_message(request)
-        print("Synchronous reply received: " + extract_text(response))
+        try:
+            a1 = translate(final_agent_card_to_use, request1)
+            request = build_basic_request("achieve", a1, my_url)
+            response = await client.send_message(request)
+            print("Synchronous reply received: " + extract_text(response))
+        except LLMError:
+            print("Failure while talking with the LLM.")
 
         # Another message (achieve)
-        a2 = translate(final_agent_card_to_use, request2)
-        request = build_basic_request("achieve", a2, my_url)
-        response = await client.send_message(request)
-        print("Synchronous reply received: " + extract_text(response))
+        try:
+            a2 = translate(final_agent_card_to_use, request2)
+            request = build_basic_request("achieve", a2, my_url)
+            response = await client.send_message(request)
+            print("Synchronous reply received: " + extract_text(response))
+        except LLMError:
+            print("Failure while talking with the LLM.")
 
         # Another message (achieve)
-        a3 = translate(final_agent_card_to_use, request3)
-        request = build_basic_request("achieve", a3, my_url)
-        response = await client.send_message(request)
-        print("Synchronous reply received: " + extract_text(response))
+        try:
+            a3 = translate(final_agent_card_to_use, request3)
+            request = build_basic_request("achieve", a3, my_url)
+            response = await client.send_message(request)
+            print("Synchronous reply received: " + extract_text(response))
+        except LLMError:
+            print("Failure while talking with the LLM.")
 
 
 if __name__ == "__main__":
