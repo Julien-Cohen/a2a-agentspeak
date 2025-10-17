@@ -2,5 +2,5 @@ name = Pinger Agent
 doc = An agent which sends ping (Understands AgentSpeak messages)
 
 
-action : do_ping : send a ping request
-action : share_secret : send a secret
+action : do_ping : 1 : send a ping request
+action : share_secret : 1 : send a secret

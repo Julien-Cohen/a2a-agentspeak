@@ -26,6 +26,7 @@ class ASLSkill:
     id: str
     illocution: str
     literal: str
+    arity: int
     doc: str
 
 
@@ -33,7 +34,12 @@ def skill_of_ASLSkill(s: ASLSkill) -> AgentSkill:
     return AgentSkill(
         id=s.id,
         name=s.id + " (from ASL agent)",
-        description=s.doc,
+        description=s.doc
+        + " (needs "
+        + str(s.arity)
+        + " parameter"
+        + ("s" if s.arity > 1 else "")
+        + ")",
         tags=[s.illocution],
         examples=["(" + s.illocution + "," + s.literal + ")"],
     )
@@ -75,16 +81,21 @@ class AgentSpeakInterface:
         self.doc = doc
         self.url = url
         self.implementation = implementation
+        self.new_actions_callback = None
 
-    def publish_ask(self, id, doc, literal):
-        self.skills.append(ASLSkill(id=id, doc=doc, literal=literal, illocution="ask"))
-
-    def publish_listen(self, id, doc, literal):
-        self.skills.append(ASLSkill(id=id, doc=doc, literal=literal, illocution="tell"))
-
-    def publish_obey(self, id, doc, literal):
+    def publish_ask(self, id, doc, literal, arity):
         self.skills.append(
-            ASLSkill(id=id, doc=doc, literal=literal, illocution="achieve")
+            ASLSkill(id=id, doc=doc, literal=literal, arity=arity, illocution="ask")
+        )
+
+    def publish_listen(self, id, doc, literal, arity):
+        self.skills.append(
+            ASLSkill(id=id, doc=doc, literal=literal, arity=arity, illocution="tell")
+        )
+
+    def publish_obey(self, id, doc, literal, arity):
+        self.skills.append(
+            ASLSkill(id=id, doc=doc, literal=literal, arity=arity, illocution="achieve")
         )
 
     def build_card(self):
@@ -106,7 +117,7 @@ class AgentSpeakInterface:
     @dataclass
     class Result:
         success: bool
-        reason: str
+        reason: str | None
 
     def check(self) -> Result:
         """Check that the public interface correspond to actual triggers in implementation.
@@ -141,7 +152,7 @@ class AgentSpeakInterface:
                     + str(s)
                     + " (FIXME)"
                 )
-        return self.Result(True, None)  # fixme
+        return self.Result(True, None)
 
     def add_new_actions_callback(self, callback):
         self.new_actions_callback = callback
@@ -159,16 +170,16 @@ def from_file(intf: str, impl: str, url: str) -> AgentSpeakInterface:
 
     for l in i.lines:
         if l.kind == Kind.BELIEF:
-            a.publish_ask(l.id, l.doc, l.id)
+            a.publish_ask(id=l.id, doc=l.doc, literal=l.id, arity=l.arity)
         elif l.kind == Kind.INPUT:
-            a.publish_listen(l.id, l.doc, l.id)
+            a.publish_listen(id=l.id, doc=l.doc, literal=l.id, arity=l.arity)
         elif l.kind == Kind.ACTION:
-            a.publish_obey(l.id, l.doc, l.id)
+            a.publish_obey(id=l.id, doc=l.doc, literal=l.id, arity=l.arity)
         else:
             assert False
 
     r = a.check()
-    if not (r.success):
+    if not r.success:
         raise InterfaceError(r.reason)
     else:
         return a

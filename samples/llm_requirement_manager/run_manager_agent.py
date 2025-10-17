@@ -43,7 +43,7 @@ if __name__ == "__main__":
             assert s.functor == "spec"
             assert r.functor == "req"
             return agentspeak.Literal(
-                mistral_config.ask_llm_for_completion(str(s.args[0]), str(r))
+                mistral_config.ask_llm_for_completion(str(s.args[0]), str(r.args[0]))
             )
 
     # define agent interface and implementation

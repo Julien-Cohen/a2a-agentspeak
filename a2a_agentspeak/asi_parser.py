@@ -19,6 +19,7 @@ class Kind(Enum):
 class Line:
     kind: Kind
     id: str
+    arity: int
     doc: str
 
 
@@ -37,7 +38,7 @@ def read_file(intf: str) -> Interface:
 
         l = f.readline()
         assert l.startswith("doc = ")
-        doc = l.removeprefix("doc = ")
+        agent_doc = l.removeprefix("doc = ")
 
         lines = []
 
@@ -47,18 +48,24 @@ def read_file(intf: str) -> Interface:
                 pass
             else:
                 try:
-                    [a, b, c] = l.split(" : ")
-                    if a == "belief":
-                        lines.append(Line(kind=Kind.BELIEF, doc=c, id=b))
-                    elif a == "input":
-                        lines.append(Line(kind=Kind.INPUT, doc=c, id=b))
-                    elif a == "action":
-                        lines.append(Line(kind=Kind.ACTION, doc=c, id=b))
+                    [k, lit, a, doc] = l.split(" : ")
+                    if k == "belief":
+                        lines.append(
+                            Line(kind=Kind.BELIEF, doc=doc, id=lit, arity=int(a))
+                        )
+                    elif k == "input":
+                        lines.append(
+                            Line(kind=Kind.INPUT, doc=doc, id=lit, arity=int(a))
+                        )
+                    elif k == "action":
+                        lines.append(
+                            Line(kind=Kind.ACTION, doc=doc, id=lit, arity=int(a))
+                        )
                     else:
-                        raise SyntaxError(intf, l, "Bad kind: " + a)
+                        raise SyntaxError(intf, l, "Bad kind: " + k)
                 except SyntaxError as e:
                     raise e
                 except Exception as e:
                     raise SyntaxError(intf, l, "bad line structure")
 
-        return Interface(name, doc, lines)
+        return Interface(name, agent_doc, lines)
