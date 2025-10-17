@@ -12,6 +12,8 @@ from a2a.server.apps import A2AStarletteApplication
 from a2a.server.request_handlers import DefaultRequestHandler
 from a2a.server.tasks import InMemoryTaskStore
 
+from a2a_agentspeak import asi_parser
+from a2a_agentspeak.asi_parser import Kind
 from a2a_agentspeak.bdi import BDIAgentExecutor
 
 import agentspeak
@@ -151,32 +153,20 @@ class AgentSpeakInterface:
 
 
 def from_file(intf: str, impl: str, url: str) -> AgentSpeakInterface:
-    with open(intf, "r") as f:
-        l = f.readline()
-        assert l.startswith("name = ")
-        name = l.removeprefix("name = ")
+    try:
+        i: asi_parser.Interface = asi_parser.read_file(intf)
 
-        l = f.readline()
-        assert l.startswith("doc = ")
-        doc = l.removeprefix("doc = ")
+        a: AgentSpeakInterface = AgentSpeakInterface(i.name, i.doc, url, impl)
 
-        a: AgentSpeakInterface = AgentSpeakInterface(name, doc, url, impl)
-
-        for l in f:
-
-            if l == "\n":
-                pass
-            elif l.startswith("belief"):
-                [_, b, c] = l.split(" : ")
-                a.publish_ask(b, c, b)
-            elif l.startswith("input"):
-                [_, b, c] = l.split(" : ")
-                a.publish_listen(b, c, b)
-            elif l.startswith("action"):
-                [_, b, c] = l.split(" : ")
-                a.publish_obey(b, c, b)
+        for l in i.lines:
+            if l.kind == Kind.BELIEF:
+                a.publish_ask(l.id, l.doc, l.id)
+            elif l.kind == Kind.INPUT:
+                a.publish_listen(l.id, l.doc, l.id)
+            elif l.kind == Kind.ACTION:
+                a.publish_obey(l.id, l.doc, l.id)
             else:
-                print("line ignored: " + l)
+                assert False
 
         if not (a.check()):
             raise Exception(
@@ -184,3 +174,5 @@ def from_file(intf: str, impl: str, url: str) -> AgentSpeakInterface:
             )
         else:
             return a
+    except Exception as e:
+        raise Exception("Error while parsing " + intf)
