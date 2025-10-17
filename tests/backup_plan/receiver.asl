@@ -1,6 +1,6 @@
 !start.
 
-+!start : impossible(X) <-
++!start : .raise(true) <-
     .print("impossible plan").
 
 +!start <-
