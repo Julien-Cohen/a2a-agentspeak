@@ -1,12 +1,12 @@
 The MOSAICO A2A AgentSpeak protocol is designed to interact with AgentSpeak agents on top of A2A protocol.
 
-The content of messages must be structured as follows :
-    (illocution,literal)
+The TextPart components of messages must have an illocution in metadata and literal in text field. See the examples below.
 
-Example 1 : (tell, ready)
+Example 1 : TextPart(kind='text', metadata={'illocution': 'tell'}, text="ready")
 
-Example 2 : (ask, secret)
+Example 2 : TextPart(kind='text', metadata={'illocution': 'ask'}, text="secret")
 
-Example 3 : (achieve, ping)
+Example 3 : TextPart(kind='text', metadata={'illocution': 'achieve'}, text="ping")
+
 
 The set of illocutions and literals a given agent can handle is given in its agent card skills.
