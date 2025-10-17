@@ -121,20 +121,16 @@ async def main() -> None:
         )
         logger.info("A2AClient initialized.")
 
-        config = MessageSendConfiguration(
-            push_notification_config=PushNotificationConfig(url=my_url)
-        )
-
         # First message (achieve)
         request = build_basic_request(
-            "achieve", "do_ping('" + receiver_agent_url + "')", config
+            "achieve", "do_ping('" + receiver_agent_url + "')", my_url
         )
         response = await client.send_message(request)
         print("Synchronous reply received: " + extract_text(response))
 
         # Second message (achieve)
         request = build_basic_request(
-            "achieve", "share_secret('" + receiver_agent_url + "')", config
+            "achieve", "share_secret('" + receiver_agent_url + "')", my_url
         )
         response = await client.send_message(request)
         print("Synchronous reply received: " + extract_text(response))

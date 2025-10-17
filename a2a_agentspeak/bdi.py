@@ -35,12 +35,12 @@ class CatalogEntry:
     meaning: str
 
 
-async def do_send(url: str, illoc: str, content: str):
+async def do_send(to_url: str, illoc: str, content: str, my_url: str):
     async with httpx.AsyncClient() as httpx_client:
 
         resolver = A2ACardResolver(
             httpx_client=httpx_client,
-            base_url=url,
+            base_url=to_url,
         )
 
         try:
@@ -49,10 +49,10 @@ async def do_send(url: str, illoc: str, content: str):
             client = A2AClient(
                 # httpx_client=httpx_client, agent_card=_public_card
                 httpx_client=httpx_client,
-                url=url,
+                url=to_url,
             )
 
-            request = message_tools.build_basic_request(illoc, content, None)
+            request = message_tools.build_basic_request(illoc, content, my_url)
             response = await client.send_message(request)
             print(
                 "Message sent and synchronous answer received: "
@@ -73,7 +73,8 @@ async def reply(output_event_queue: EventQueue, r: str):
 
 
 class BDIAgent:
-    def __init__(self, asl_file, additional_callback=None):
+    def __init__(self, asl_file: str, url: str, additional_callback=None):
+        self.my_url = url
 
         self.published_commands = []
 
@@ -116,14 +117,14 @@ class BDIAgent:
             u: agentspeak.Literal, illoc: agentspeak.Literal, t: agentspeak.Literal
         ):
             assert check_illoc(illoc)
-            asyncio.create_task(do_send(str(u), str(illoc), str(t)))
+            asyncio.create_task(do_send(str(u), str(illoc), str(t), self.my_url))
 
         @actions.add_procedure(
             ".send_str", (str, agentspeak.Literal, agentspeak.Literal)
         )
         def _send_to_url_str(u: str, illoc: agentspeak.Literal, t: agentspeak.Literal):
             assert check_illoc(illoc)
-            asyncio.create_task(do_send(u, str(illoc), str(t)))
+            asyncio.create_task(do_send(u, str(illoc), str(t), self.my_url))
 
     def process_message(self, msg: AgentSpeakMessage):
         """Process tell, and achieve requests following the AgentSpeak defined behavior."""
@@ -189,8 +190,10 @@ class BDIAgent:
 
 class BDIAgentExecutor(AgentExecutor):
 
-    def __init__(self, asl_file: str, additional_callback=None):
-        self.bdi_agent = BDIAgent(asl_file, additional_callback=additional_callback)
+    def __init__(self, asl_file: str, url: str, additional_callback=None):
+        self.bdi_agent = BDIAgent(
+            asl_file, url, additional_callback=additional_callback
+        )
 
     async def execute(
         self,

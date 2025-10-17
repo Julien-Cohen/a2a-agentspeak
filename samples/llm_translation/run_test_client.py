@@ -22,7 +22,7 @@ from a2a.server.tasks import InMemoryTaskStore
 from a2a.server.events import EventQueue
 import uvicorn
 
-from a2a_agentspeak.message_tools import (
+from a2a_agentspeak.codec import (
     build_basic_request,
     extract_text,
 )
@@ -121,25 +121,21 @@ async def main() -> None:
         )
         logger.info("A2AClient initialized.")
 
-        config = MessageSendConfiguration(
-            push_notification_config=PushNotificationConfig(url=my_url)
-        )
-
         # First message (achieve)
         a1 = translate(final_agent_card_to_use, request1)
-        request = build_basic_request("achieve", a1, config)
+        request = build_basic_request("achieve", a1, my_url)
         response = await client.send_message(request)
         print("Synchronous reply received: " + extract_text(response))
 
         # Another message (achieve)
         a2 = translate(final_agent_card_to_use, request2)
-        request = build_basic_request("achieve", a2, config)
+        request = build_basic_request("achieve", a2, my_url)
         response = await client.send_message(request)
         print("Synchronous reply received: " + extract_text(response))
 
         # Another message (achieve)
         a3 = translate(final_agent_card_to_use, request3)
-        request = build_basic_request("achieve", a3, config)
+        request = build_basic_request("achieve", a3, my_url)
         response = await client.send_message(request)
         print("Synchronous reply received: " + extract_text(response))
 

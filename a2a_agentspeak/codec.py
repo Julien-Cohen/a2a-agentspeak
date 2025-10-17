@@ -7,6 +7,7 @@ from a2a.types import (
     SendMessageSuccessResponse,
     Message,
     MessageSendConfiguration,
+    PushNotificationConfig,
 )
 
 from typing import Any
@@ -40,9 +41,10 @@ def build_basic_message(
     }
 
 
-def build_basic_request(
-    illoc: str, t: str, c: MessageSendConfiguration
-) -> SendMessageRequest:
+def build_basic_request(illoc: str, t: str, my_url: str) -> SendMessageRequest:
+    c = MessageSendConfiguration(
+        push_notification_config=PushNotificationConfig(url=my_url)
+    )
     params = MessageSendParams(**build_basic_message(illoc, t, c))
     return SendMessageRequest(id=str(uuid4()), params=params)
 

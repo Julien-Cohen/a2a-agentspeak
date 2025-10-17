@@ -92,7 +92,7 @@ class AgentSpeakInterface:
 
     def build_server(self, additional_callback=None):
         executor = BDIAgentExecutor(
-            self.implementation, additional_callback=additional_callback
+            self.implementation, self.url, additional_callback=additional_callback
         )
 
         request_handler = DefaultRequestHandler(
