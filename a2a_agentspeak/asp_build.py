@@ -103,7 +103,12 @@ class AgentSpeakInterface:
             agent_card=self.build_card(), http_handler=request_handler
         )
 
-    def check(self) -> bool:
+    @dataclass
+    class Result:
+        success: bool
+        reason: str
+
+    def check(self) -> Result:
         """Check that the public interface correspond to actual triggers in implementation.
         More precisely:
          * achievements declared in the interface must have a trigger (we do not consider plans that would be added dynamically with askHow or tellHow).
@@ -123,56 +128,47 @@ class AgentSpeakInterface:
         for s in self.skills:
             if s.illocution == "achieve":
                 if not check_achievement(s.literal, ast_agent):
-                    print(s.literal + " invalidated.")
-                    return False
-                else:
-                    print("Check achievement " + s.literal + " ok.")
+                    return self.Result(False, s.literal)
             elif s.illocution == "tell":
                 if not check_input_belief(s.literal, ast_agent):
-                    print(s.literal + " invalidated.")
-                    return False
-                else:
-                    print("Check tell belief " + s.literal + " ok.")
-
+                    return self.Result(False, s.literal)
             elif s.illocution == "ask":
                 if not check_ask_belief(s.literal, ast_agent):
-                    print(s.literal + " invalidated.")
-                    return False
-                else:
-                    print("Check ask belief " + s.literal + " ok.")
+                    return self.Result(False, s.literal)
             else:
                 print(
                     "WARNING: implementation not checked against skill in the interface: "
                     + str(s)
                     + " (FIXME)"
                 )
-        return True  # fixme
+        return self.Result(True, None)  # fixme
 
     def add_new_actions_callback(self, callback):
         self.new_actions_callback = callback
 
 
+class InterfaceError(Exception):
+    def __init__(self, token):
+        self.token = token
+
+
 def from_file(intf: str, impl: str, url: str) -> AgentSpeakInterface:
-    try:
-        i: asi_parser.Interface = asi_parser.read_file(intf)
+    i: asi_parser.Interface = asi_parser.read_file(intf)
 
-        a: AgentSpeakInterface = AgentSpeakInterface(i.name, i.doc, url, impl)
+    a: AgentSpeakInterface = AgentSpeakInterface(i.name, i.doc, url, impl)
 
-        for l in i.lines:
-            if l.kind == Kind.BELIEF:
-                a.publish_ask(l.id, l.doc, l.id)
-            elif l.kind == Kind.INPUT:
-                a.publish_listen(l.id, l.doc, l.id)
-            elif l.kind == Kind.ACTION:
-                a.publish_obey(l.id, l.doc, l.id)
-            else:
-                assert False
-
-        if not (a.check()):
-            raise Exception(
-                "The specified interface does not match the specified implementation."
-            )
+    for l in i.lines:
+        if l.kind == Kind.BELIEF:
+            a.publish_ask(l.id, l.doc, l.id)
+        elif l.kind == Kind.INPUT:
+            a.publish_listen(l.id, l.doc, l.id)
+        elif l.kind == Kind.ACTION:
+            a.publish_obey(l.id, l.doc, l.id)
         else:
-            return a
-    except Exception as e:
-        raise Exception("Error while parsing " + intf)
+            assert False
+
+    r = a.check()
+    if not (r.success):
+        raise InterfaceError(r.reason)
+    else:
+        return a
