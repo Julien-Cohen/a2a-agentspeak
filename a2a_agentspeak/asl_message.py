@@ -2,6 +2,7 @@ import agentspeak
 import ast
 from dataclasses import dataclass
 
+
 def lit_of_str(s: str) -> agentspeak.Literal:
     l = s.split(sep="(", maxsplit=1)
     symb = l[0]
@@ -59,10 +60,9 @@ class AgentSpeakMessage:
         _i = self.illocution
         _c = self.content
         _s = self.sender
-        if _i in ["tell", "untell", "achieve", "unachieve"]:
+        if _i in ["tell", "untell", "achieve", "unachieve", "ask"]:
             return add_source(lit_of_str(_c).freeze({}, {}), _s)
         elif _i in ["tellHow", "untellHow"]:
             return add_source(strplan(_c).freeze({}, {}), _s)
         else:
             raise RuntimeError("Illocution not supported: " + _i)
-

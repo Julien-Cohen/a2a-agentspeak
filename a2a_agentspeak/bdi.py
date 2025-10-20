@@ -190,10 +190,20 @@ class BDIAgent:
 
 class BDIAgentExecutor(AgentExecutor):
 
-    def __init__(self, asl_file: str, url: str, additional_callback=None):
+    def __init__(
+        self,
+        asl_file: str,
+        public_literals: list[str],
+        url: str,
+        additional_callback=None,
+    ):
         self.bdi_agent = BDIAgent(
             asl_file, url, additional_callback=additional_callback
         )
+        self.public_literals = public_literals
+
+    def is_public(self, lit: str) -> bool:
+        return lit in self.public_literals
 
     async def execute(
         self,
@@ -201,7 +211,14 @@ class BDIAgentExecutor(AgentExecutor):
         output_event_queue: EventQueue,
     ) -> None:
         m: AgentSpeakMessage = asl_of_a2a(context)
-        await self.bdi_agent.preprocess_message(m, output_event_queue)
+        l = str(m.literal().functor)
+        if not (self.is_public(l)):
+            await reply(
+                output_event_queue,
+                "The literal " + l + " is not public it this agent.",
+            )
+        else:
+            await self.bdi_agent.preprocess_message(m, output_event_queue)
 
     async def cancel(self, context: RequestContext, event_queue: EventQueue) -> None:
         raise Exception("cancel not supported")

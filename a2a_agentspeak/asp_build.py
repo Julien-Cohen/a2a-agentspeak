@@ -98,12 +98,18 @@ class AgentSpeakInterface:
             ASLSkill(id=id, doc=doc, literal=literal, arity=arity, illocution="achieve")
         )
 
+    def public_literals(self):
+        return [s.literal for s in self.skills]
+
     def build_card(self):
         return build_agent_card(self.name, self.doc, self.url, self.skills)
 
     def build_server(self, additional_callback=None):
         executor = BDIAgentExecutor(
-            self.implementation, self.url, additional_callback=additional_callback
+            self.implementation,
+            self.public_literals(),
+            self.url,
+            additional_callback=additional_callback,
         )
 
         request_handler = DefaultRequestHandler(

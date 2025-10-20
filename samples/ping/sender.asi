@@ -4,3 +4,4 @@ doc = An agent which sends ping (Understands AgentSpeak messages)
 
 action : do_ping : 1 : send a ping request
 action : share_secret : 1 : send a secret
+input : pong : 0 : do nothing
