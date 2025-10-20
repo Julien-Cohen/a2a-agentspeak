@@ -1,0 +1,6 @@
+name = A requirement manager Agent
+doc = A agent that generates a list of requirements from a specification. Uses a LLM. (Understands AgentSpeak messages)
+
+
+input : spec : 1 : A specification to manage.
+action : build : 0 : generate a list of requirements.
