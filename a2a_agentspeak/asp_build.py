@@ -30,18 +30,44 @@ class ASLSkill:
     doc: str
 
 
-def skill_of_ASLSkill(s: ASLSkill) -> AgentSkill:
+def pretty_print_example(s: ASLSkill):
+    return "(" + s.illocution + "," + s.literal + ")"
+
+
+def parse_example(s: str) -> tuple[str, str]:
+    s2 = s.removeprefix("(").removesuffix(")")
+    (a, b) = s2.split(",")
+    return a, b
+
+
+def encode_arity(a: int) -> str:
+    return "(needs " + str(a) + " parameter" + ("s" if a > 1 else "") + ")"
+
+
+def decode_arity(s: str) -> int:
+    l = s.split(" ")
+    s1 = l[-2]
+    return int(s1)
+
+
+def a2a_skill_of_asl_skill(s: ASLSkill) -> AgentSkill:
     return AgentSkill(
         id=s.id,
         name=s.id + " (from ASL agent)",
-        description=s.doc
-        + " (needs "
-        + str(s.arity)
-        + " parameter"
-        + ("s" if s.arity > 1 else "")
-        + ")",
-        tags=[s.illocution],
-        examples=["(" + s.illocution + "," + s.literal + ")"],
+        description=s.doc + " " + encode_arity(s.arity),
+        tags=[s.literal],
+        examples=[pretty_print_example(s)],
+    )
+
+
+def asl_skill_of_a2a_skill(s: AgentSkill) -> ASLSkill:
+    (a, b) = parse_example(s.examples[0])
+    return ASLSkill(
+        id=s.id,
+        illocution=a,
+        literal=b,
+        arity=decode_arity(s.description),
+        doc=s.description,
     )
 
 
@@ -67,7 +93,7 @@ def build_agent_card(
             push_notifications=True,
             extensions=[EXTENSION],
         ),
-        skills=[skill_of_ASLSkill(s) for s in skills],
+        skills=[a2a_skill_of_asl_skill(s) for s in skills],
         supports_authenticated_extended_card=False,
     )
 
@@ -80,7 +106,7 @@ class AgentSpeakInterface:
         self.name = name
         self.doc = doc
         self.url = url
-        self.implementation = implementation
+        self.implementation_file = implementation
         self.new_actions_callback = None
 
     def publish_ask(self, id, doc, literal, arity):
@@ -106,7 +132,7 @@ class AgentSpeakInterface:
 
     def build_server(self, additional_callback=None):
         executor = BDIAgentExecutor(
-            self.implementation,
+            self.implementation_file,
             self.public_literals(),
             self.url,
             additional_callback=additional_callback,
@@ -133,7 +159,7 @@ class AgentSpeakInterface:
          * beliefs that are told to that agent must occur too in the start implementation.
         """
         LOGGER = agentspeak.get_logger(__name__)
-        with open(self.implementation) as source:
+        with open(self.implementation_file) as source:
             log = agentspeak.Log(LOGGER, 3)
             tokens = agentspeak.lexer.TokenStream(source, log)
             ast_agent: agentspeak.parser.ASTAgent = agentspeak.parser.parse(
