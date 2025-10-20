@@ -23,6 +23,8 @@ from a2a_agentspeak.codec import (
 )
 from a2a_utils.card_holder import CardHolder
 
+from mistral_selector_prompt import ask_llm_for_agent
+
 spec1 = "A function to compare two words."
 
 
@@ -85,37 +87,48 @@ async def main() -> None:
     threading.Thread(target=start).start()
     print("-running a2a-server for client agent-")
 
-    # 2) query the other a2a agent
+    # 2) query the other a2a agents
     card_holder = CardHolder()
     for url in agent_urls:
         await card_holder.retrieve_card_from(url)
 
+    # 3) select the convenient agent
     if card_holder.cards is []:
-        print("No agent successfully contacted.")
-    else:
+        raise Exception("No agent successfully contacted.")
+
+    try:
+        i = ask_llm_for_agent(
+            "Build a list of requirement from a specification.", card_holder.cards
+        )
+        if i < 0 or i >= len(card_holder.cards):
+            raise Exception("Irregular answer from LLM")
+        agent_card = card_holder.cards[i]
+    except Exception:
+        print("LLM selection failed, switching to algorithmic selection")
         filtered = card_holder.cards_with(lambda c: "req" in c.name)
         if filtered is []:
-            print("No convenient agent found")
+            raise Exception("No convenient agent found")
         else:
             agent_card = filtered[0]
-            print("Selected : " + agent_card.name)
 
-            async with httpx.AsyncClient() as httpx_client:
+    print("Selected : " + agent_card.name)
 
-                client = A2AClient(httpx_client=httpx_client, agent_card=agent_card)
-                logger.info("A2AClient initialized.")
+    async with httpx.AsyncClient() as httpx_client:
 
-                # First message (tell)
-                request = build_basic_request(
-                    "tell", "spec(" + neutralize_str(spec1) + ")", my_url
-                )
-                response = await client.send_message(request)
-                print("Synchronous reply received: " + extract_text(response))
+        client = A2AClient(httpx_client=httpx_client, agent_card=agent_card)
+        logger.info("A2AClient initialized.")
 
-                # Second message (achieve)
-                request = build_basic_request("achieve", "build", my_url)
-                response = await client.send_message(request)
-                print("Synchronous reply received: " + extract_text(response))
+        # First message (tell)
+        request = build_basic_request(
+            "tell", "spec(" + neutralize_str(spec1) + ")", my_url
+        )
+        response = await client.send_message(request)
+        print("Synchronous reply received: " + extract_text(response))
+
+        # Second message (achieve)
+        request = build_basic_request("achieve", "build", my_url)
+        response = await client.send_message(request)
+        print("Synchronous reply received: " + extract_text(response))
 
 
 if __name__ == "__main__":
