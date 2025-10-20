@@ -51,7 +51,9 @@ async def main() -> None:
     logger = logging.getLogger(__name__)  # Get a logger instance
 
     agent_urls = ["http://127.0.0.1:9990", "http://127.0.0.1:9991"]
-    my_url = "http://127.0.0.1:9999"
+    host = "127.0.0.1"
+    my_port = 9999
+    my_url = "http://" + host + ":" + str(my_port)
 
     # 1) start an a2a server
 
@@ -78,7 +80,7 @@ async def main() -> None:
     )
 
     def start():
-        uvicorn.run(server.build(), host="0.0.0.0", port=9998)
+        uvicorn.run(server.build(), host=host, port=my_port)
 
     threading.Thread(target=start).start()
     print("-running a2a-server for client agent-")
@@ -91,7 +93,7 @@ async def main() -> None:
     if card_holder.cards is []:
         print("No agent successfully contacted.")
     else:
-        filtered = [c for c in card_holder.cards if "req" in c.name]
+        filtered = card_holder.cards_with(lambda c: "req" in c.name)
         if filtered is []:
             print("No convenient agent found")
         else:

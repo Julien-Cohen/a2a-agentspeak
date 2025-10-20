@@ -41,3 +41,6 @@ class CardHolder:
             except Exception as e:
                 logger.info("Client failed to fetch the public agent card.")
                 return False
+
+    def cards_with(self, predicate):
+        return [c for c in self.cards if predicate(c)]
