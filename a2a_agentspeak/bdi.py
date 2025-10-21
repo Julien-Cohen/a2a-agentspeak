@@ -73,7 +73,7 @@ async def reply(output_event_queue: EventQueue, r: str):
 
 
 class BDIAgent:
-    def __init__(self, asl_file: str, url: str, additional_callback=None):
+    def __init__(self, asl_file: str, url: str, additional_callbacks):
         self.my_url = url
 
         self.published_commands = []
@@ -83,8 +83,8 @@ class BDIAgent:
         # add custom actions (must occur before loading the asl file)
         self.bdi_actions = agentspeak.Actions(agentspeak.stdlib.actions)
         self.add_custom_actions(self.bdi_actions)
-        if additional_callback is not None:
-            additional_callback(actions=self.bdi_actions)
+        for cb in additional_callbacks:
+            cb(actions=self.bdi_actions)
 
         with open(asl_file) as source:
             self.asp_agent = self.env.build_agent(source, self.bdi_actions)
@@ -195,10 +195,10 @@ class BDIAgentExecutor(AgentExecutor):
         asl_file: str,
         public_literals: list[str],
         url: str,
-        additional_callback=None,
+        additional_callbacks,
     ):
         self.bdi_agent = BDIAgent(
-            asl_file, url, additional_callback=additional_callback
+            asl_file, url, additional_callbacks=additional_callbacks
         )
         self.public_literals = public_literals
 

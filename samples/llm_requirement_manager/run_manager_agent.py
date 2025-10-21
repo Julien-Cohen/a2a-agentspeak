@@ -23,7 +23,7 @@ if __name__ == "__main__":
 
     name = "manager"
 
-    def add_custom_actions(actions: agentspeak.Actions) -> int:
+    def add_custom_action1(actions: agentspeak.Actions) -> int:
 
         @actions.add_function(
             ".prompt_completeness", (agentspeak.Literal, agentspeak.Literal)
@@ -35,6 +35,8 @@ if __name__ == "__main__":
             assert r.functor == "req"
             res = mistral_config.ask_llm_for_coverage(str(s.args[0]), str(r.args[0]))
             return agentspeak.Literal("complete" if res else "incomplete")
+
+    def add_custom_action2(actions: agentspeak.Actions) -> int:
 
         @actions.add_function(
             ".prompt_generate", (agentspeak.Literal, agentspeak.Literal)
@@ -48,11 +50,14 @@ if __name__ == "__main__":
 
     # define agent interface and implementation
     a: AgentSpeakInterface = from_file(
-        name + ".asi", name + ".asl", build_url(host, port)
+        name + ".asi",
+        name + ".asl",
+        build_url(host, port),
+        cb={add_custom_action1, add_custom_action2},
     )
 
     # build and run the a2a server
-    server = a.build_server(additional_callback=add_custom_actions)
+    server = a.build_server()
 
     def start():
         uvicorn.run(server.build(), host=host, port=port)

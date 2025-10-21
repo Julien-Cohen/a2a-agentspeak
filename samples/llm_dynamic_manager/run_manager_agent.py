@@ -52,11 +52,11 @@ if __name__ == "__main__":
 
     # define agent interface and implementation
     a: AgentSpeakInterface = from_file(
-        name + ".asi", name + ".asl", build_url(host, port)
+        name + ".asi", name + ".asl", build_url(host, port), add_custom_actions
     )
 
     # build and run the a2a server
-    server = a.build_server(additional_callback=add_custom_actions)
+    server = a.build_server()
 
     def start():
         uvicorn.run(server.build(), host=host, port=port)

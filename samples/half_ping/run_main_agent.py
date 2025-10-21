@@ -18,7 +18,7 @@ if __name__ == "__main__":
     name = "receiver"
 
     # define agent interface and implementation
-    a = from_file(name + ".asi", name + ".asl", build_url(host, port))
+    a = from_file(name + ".asi", name + ".asl", build_url(host, port), None)
 
     # build and run the a2a server
     server = a.build_server()
