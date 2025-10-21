@@ -11,7 +11,7 @@ llm_model = "gpt-4o-mini"
 
 llm_client = OpenAI(api_key=llm_api_key)
 
-timeout = 20  # seconds
+timeout = 60  # seconds
 
 
 def log(m):

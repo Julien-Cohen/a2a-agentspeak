@@ -3,7 +3,7 @@ import threading
 
 import httpx
 
-from a2a.client import A2AClient
+from a2a.client import A2AClient, A2AClientTimeoutError
 from a2a.server.agent_execution import AgentExecutor, RequestContext
 from a2a.types import (
     AgentCard,
@@ -126,13 +126,19 @@ async def main() -> None:
         request = build_basic_request(
             "tell", "spec(" + neutralize_str(spec1) + ")", my_url
         )
-        response = await client.send_message(request)
-        print("Synchronous reply received: " + extract_text(response))
+        try:
+            response = await client.send_message(request)
+            print("Synchronous reply received: " + extract_text(response))
+        except A2AClientTimeoutError:
+            print("No acknowledgement received before timeout.")
 
         # Second message (achieve)
         request = build_basic_request("achieve", "build", my_url)
-        response = await client.send_message(request)
-        print("Synchronous reply received: " + extract_text(response))
+        try:
+            response = await client.send_message(request)
+            print("Synchronous reply received: " + extract_text(response))
+        except A2AClientTimeoutError:
+            print("No acknowledgement received before timeout.")
 
 
 if __name__ == "__main__":

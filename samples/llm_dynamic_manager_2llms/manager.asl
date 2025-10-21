@@ -15,8 +15,8 @@
 
 +!build : spec(S) & req(L) & .print("Consulting LLM") & .prompt_completeness(spec(S), req(L), RES) <-
     .print("Received", RES);
-    .print("Sleeping 10 seconds.") ;
-    .wait(10000) ;
+    .print("Sleeping 15 seconds.") ;
+    .wait(15000) ;
     .print("wake up") ;
     +completeness(RES).
 
@@ -31,8 +31,8 @@
 +completeness(incomplete) : spec(S) & req(L) & .print("Consulting LLM") & .prompt_generate(spec(S), req(L), RES) <-
     -req(L) ;
     +req([RES|L]) ;
-    .print("Sleeping 10 seconds.") ;
-    .wait(10000) ;
+    .print("Sleeping 15 seconds.") ;
+    .wait(15000) ;
     .print("wake up") ;
     !build.
 
