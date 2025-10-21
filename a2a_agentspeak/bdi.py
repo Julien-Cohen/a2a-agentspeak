@@ -1,6 +1,5 @@
 import asyncio
 
-import a2a_agentspeak.codec as message_tools
 
 import httpx
 
@@ -23,7 +22,8 @@ from a2a_agentspeak.asl_message import AgentSpeakMessage
 
 from a2a.server.agent_execution import AgentExecutor, RequestContext
 
-from a2a_agentspeak.codec import asl_of_a2a
+import a2a_agentspeak.message_codec as message_tools
+from a2a_agentspeak.message_codec import asl_of_a2a
 
 from a2a_agentspeak.check import check_illoc
 

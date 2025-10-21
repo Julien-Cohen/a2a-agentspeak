@@ -24,7 +24,7 @@ from a2a.server.tasks import InMemoryTaskStore
 from a2a.server.events import EventQueue
 import uvicorn
 
-from a2a_agentspeak.codec import (
+from a2a_agentspeak.message_codec import (
     build_basic_request,
     extract_text,
 )

@@ -1,4 +1,3 @@
-import agentspeak
 from a2a.server.agent_execution import RequestContext
 from a2a.types import (
     SendMessageRequest,
