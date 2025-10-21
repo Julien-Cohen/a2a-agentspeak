@@ -4,7 +4,7 @@ import httpx
 
 import agentspeak
 import agentspeak.runtime
-import agentspeak.stdlib
+import agentspeak.ext_stdlib
 
 from dataclasses import dataclass
 
@@ -79,7 +79,7 @@ class BDIAgent:
         self.env = agentspeak.runtime.Environment()
 
         # add custom actions (must occur before loading the asl file)
-        self.bdi_actions = agentspeak.Actions(agentspeak.stdlib.actions)
+        self.bdi_actions = agentspeak.Actions(agentspeak.ext_stdlib.actions)
         self.add_custom_actions()
         for t in additional_tools:
             self.add_tool(t)
