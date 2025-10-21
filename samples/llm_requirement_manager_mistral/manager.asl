@@ -20,14 +20,25 @@
 +!build : spec(S) & req(L) <-
     .print("Completion by LLM failed.").
 
++completeness(failure) <-
+    .print("Failure with LLM.") ;
+    !reply_with_failure.
+
 +completeness(complete) : req(L) & from(F) <-
     .print("List of requirements complete:", L) ;
     .print("Sent to", F);
     .send(F, tell, req(L)).
 
 +completeness(incomplete) : spec(S) & req(L) & .print("Consulting LLM") & .prompt_generate(spec(S), req(L), RES) <-
+    +new_req(RES).
+
++new_req(failure) <-
+    .print("Failure with LLM.") ;
+    !reply_with_failure.
+
++new_req(R)<-
     -req(L) ;
-    +req([RES|L]) ;
+    +req([R|L]) ;
     !build.
 
 +completeness(incomplete) : spec(S) & req(L) <-
@@ -41,3 +52,6 @@
 
 +from(F) <-
     .print("Reply-to:", F).
+
++!reply_with_failure : from(F) <-
+    .send(F, tell, failure).

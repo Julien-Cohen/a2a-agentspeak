@@ -48,7 +48,8 @@ def ask_llm_for_coverage(spec, req_list):
         )
         return chat_response.choices[0].message.content.startswith("COMPLETE")
     except Exception as e:
-        raise AslError("LLM failure")
+        print(str(e))
+        raise AslError("LLM failure: " + str(type(e)))
 
 
 def ask_llm_for_completion(spec: str, req_list: str):
@@ -84,4 +85,5 @@ def ask_llm_for_completion(spec: str, req_list: str):
         )
         return chat_response.choices[0].message.content
     except Exception as e:
-        raise AslError("LLM failure")
+        print(str(e))
+        raise AslError("LLM failure: " + str(type(e))) from e
