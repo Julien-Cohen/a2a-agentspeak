@@ -76,8 +76,6 @@ class BDIAgent:
     def __init__(self, asl_file: str, url: str, additional_tools: set[Tool]):
         self.my_url = url
 
-        self.published_commands = []
-
         self.env = agentspeak.runtime.Environment()
 
         # add custom actions (must occur before loading the asl file)
@@ -99,13 +97,6 @@ class BDIAgent:
         def _jump(a: agentspeak.runtime.Agent, t, i):
             print("[" + a.name + "] I jump")
             yield
-
-        @actions.add_procedure(
-            ".set_public",
-            (agentspeak.Literal, int, str),
-        )
-        def _set_public(command: agentspeak.Literal, arity: int, doc: str):
-            self.register_command(command.functor, arity, doc)
 
         @actions.add_procedure(".print_float", (float,))
         def _print_float(a):
@@ -144,11 +135,6 @@ class BDIAgent:
             agentspeak.runtime.Intention(),
         )
         self.env.run()
-
-    def register_command(self, command, arity, doc):
-        """This procedure inserts an achievement with its documentation in the catalog of this agent,
-        which will be able to publish it to tell others how to use it."""
-        self.published_commands.append(CatalogEntry(command, arity, doc))
 
     def extract_from_beliefs(self, a: str):
         r = self.asp_agent.beliefs[(a, 1)]  # fixme : arity
