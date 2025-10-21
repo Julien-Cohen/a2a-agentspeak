@@ -50,13 +50,13 @@ def build_agent_card(
 class AgentSpeakInterface:
     skills: list[ASLSkill]
 
-    def __init__(self, name, doc, url, implementation: str, callbacks):
+    def __init__(self, name, doc, url, implementation: str, additional_tools):
         self.skills = []
         self.name = name
         self.doc = doc
         self.url = url
         self.implementation_file = implementation
-        self.new_actions_callbacks = callbacks
+        self.additional_tools = additional_tools
 
     def publish_ask(self, id, doc, literal, arity):
         self.skills.append(
@@ -84,7 +84,7 @@ class AgentSpeakInterface:
             self.implementation_file,
             self.public_literals(),
             self.url,
-            additional_callbacks=self.new_actions_callbacks,
+            additional_tools=self.additional_tools,
         )
 
         request_handler = DefaultRequestHandler(
@@ -144,10 +144,10 @@ class InterfaceError(Exception):
         self.token = token
 
 
-def from_file(intf: str, impl: str, url: str, cb=frozenset()) -> AgentSpeakInterface:
+def from_file(intf: str, impl: str, url: str, tools=frozenset()) -> AgentSpeakInterface:
     i: asi_parser.Interface = asi_parser.read_file(intf)
 
-    a: AgentSpeakInterface = AgentSpeakInterface(i.name, i.doc, url, impl, cb)
+    a: AgentSpeakInterface = AgentSpeakInterface(i.name, i.doc, url, impl, tools)
 
     for l in i.lines:
         if l.kind == Kind.BELIEF:

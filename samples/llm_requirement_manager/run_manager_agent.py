@@ -58,7 +58,7 @@ if __name__ == "__main__":
         name + ".asi",
         name + ".asl",
         build_url(host, port),
-        cb=[action1, action2],
+        tools=[action1, action2],
     )
 
     # build and run the a2a server

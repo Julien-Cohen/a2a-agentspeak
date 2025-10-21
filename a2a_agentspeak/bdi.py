@@ -190,9 +190,9 @@ class BDIAgentExecutor(AgentExecutor):
         asl_file: str,
         public_literals: list[str],
         url: str,
-        additional_callbacks,
+        additional_tools,
     ):
-        self.bdi_agent = BDIAgent(asl_file, url, additional_tools=additional_callbacks)
+        self.bdi_agent = BDIAgent(asl_file, url, additional_tools=additional_tools)
         self.public_literals = public_literals
 
     def is_public(self, lit: str) -> bool:
