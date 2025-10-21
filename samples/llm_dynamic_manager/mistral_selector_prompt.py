@@ -4,7 +4,7 @@ from a2a.types import AgentCard
 from agentspeak import AslError
 from mistralai import Mistral
 
-from a2a_agentspeak.asp_build import asl_skill_of_a2a_skill
+from a2a_agentspeak.skill import asl_skill_of_a2a_skill
 
 llm_api_key = os.environ["MISTRAL_API_KEY"]
 llm_model = "mistral-small-latest"
