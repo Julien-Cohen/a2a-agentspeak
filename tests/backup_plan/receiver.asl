@@ -1,6 +1,6 @@
 !start.
 
-+!start : .raise(true) <-
++!start : .print("pre") & .raise(true) & .print("post") <-
     .print("impossible plan").
 
 +!start <-
