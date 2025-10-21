@@ -8,7 +8,7 @@ from a2a_agentspeak.asp_build import from_file, AgentSpeakInterface
 
 import agentspeak
 
-import mistral_config
+import mistral_requirement_prompt
 
 
 def build_url(host: str, port: int) -> str:
@@ -20,7 +20,9 @@ def prompt_completeness(
 ) -> agentspeak.Literal:
     assert s.functor == "spec"
     assert r.functor == "req"
-    res = mistral_config.ask_llm_for_coverage(str(s.args[0]), str(r.args[0]))
+    res = mistral_requirement_prompt.ask_llm_for_coverage(
+        str(s.args[0]), str(r.args[0])
+    )
     return agentspeak.Literal("complete" if res else "incomplete")
 
 
@@ -28,7 +30,9 @@ def prompt_generation(s, r) -> agentspeak.Literal:
     assert s.functor == "spec"
     assert r.functor == "req"
     return agentspeak.Literal(
-        mistral_config.ask_llm_for_completion(str(s.args[0]), str(r.args[0]))
+        mistral_requirement_prompt.ask_llm_for_completion(
+            str(s.args[0]), str(r.args[0])
+        )
     )
 
 
