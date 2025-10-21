@@ -1,6 +1,5 @@
 import asyncio
 
-
 import httpx
 
 import agentspeak
@@ -26,6 +25,7 @@ import a2a_agentspeak.message_codec as message_tools
 from a2a_agentspeak.message_codec import asl_of_a2a
 
 from a2a_agentspeak.check import check_illoc
+from a2a_agentspeak.tool import Tool
 
 
 @dataclass
@@ -73,7 +73,7 @@ async def reply(output_event_queue: EventQueue, r: str):
 
 
 class BDIAgent:
-    def __init__(self, asl_file: str, url: str, additional_callbacks):
+    def __init__(self, asl_file: str, url: str, additional_tools: set[Tool]):
         self.my_url = url
 
         self.published_commands = []
@@ -82,9 +82,9 @@ class BDIAgent:
 
         # add custom actions (must occur before loading the asl file)
         self.bdi_actions = agentspeak.Actions(agentspeak.stdlib.actions)
-        self.add_custom_actions(self.bdi_actions)
-        for cb in additional_callbacks:
-            cb(actions=self.bdi_actions)
+        self.add_custom_actions()
+        for t in additional_tools:
+            self.add_tool(t)
 
         with open(asl_file) as source:
             self.asp_agent = self.env.build_agent(source, self.bdi_actions)
@@ -92,7 +92,8 @@ class BDIAgent:
         self.env.run()
 
     # this method is called by __init__
-    def add_custom_actions(self, actions: agentspeak.Actions):
+    def add_custom_actions(self):
+        actions = self.bdi_actions
 
         @actions.add("jump", 0)
         def _jump(a: agentspeak.runtime.Agent, t, i):
@@ -125,6 +126,14 @@ class BDIAgent:
         def _send_to_url_str(u: str, illoc: agentspeak.Literal, t: agentspeak.Literal):
             assert check_illoc(illoc)
             asyncio.create_task(do_send(u, str(illoc), str(t), self.my_url))
+
+    def add_tool(self, tool: Tool):
+        if tool.kind == "function":
+            self.bdi_actions.add_function(
+                tool.action_name, tool.arity, tool.implementation
+            )
+        else:
+            print("This kind of tool is not supported yet: " + tool.kind)
 
     def process_message(self, msg: AgentSpeakMessage):
         """Process tell, and achieve requests following the AgentSpeak defined behavior."""
@@ -197,9 +206,7 @@ class BDIAgentExecutor(AgentExecutor):
         url: str,
         additional_callbacks,
     ):
-        self.bdi_agent = BDIAgent(
-            asl_file, url, additional_callbacks=additional_callbacks
-        )
+        self.bdi_agent = BDIAgent(asl_file, url, additional_tools=additional_callbacks)
         self.public_literals = public_literals
 
     def is_public(self, lit: str) -> bool:
