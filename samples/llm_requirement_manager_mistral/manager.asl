@@ -18,7 +18,7 @@
     +completeness(RES).
 
 +!build : spec(S) & req(L) <-
-    .print("Prompt failed.").
+    .print("Completion by LLM failed.").
 
 +completeness(complete) : req(L) & from(F) <-
     .print("List of requirements complete:", L) ;
