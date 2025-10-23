@@ -8,7 +8,7 @@ from a2a_agentspeak.asp_build import from_file, AgentSpeakInterface
 
 import agentspeak
 
-import openai_requirement_prompt
+import mistral_requirement_prompt
 
 
 def build_url(host: str, port: int) -> str:
@@ -24,7 +24,7 @@ def prompt_completeness(
     assert s.functor == "spec"
     assert r.functor == "req"
     try:
-        res = openai_requirement_prompt.ask_llm_for_coverage(
+        res = mistral_requirement_prompt.ask_llm_for_coverage(
             str(s.args[0]), str(r.args[0])
         )
         return agentspeak.Literal("complete" if res else "incomplete")
@@ -39,7 +39,7 @@ def prompt_generation(s, r) -> agentspeak.Literal:
     assert r.functor == "req"
     try:
         return agentspeak.Literal(
-            openai_requirement_prompt.ask_llm_for_completion(
+            mistral_requirement_prompt.ask_llm_for_completion(
                 str(s.args[0]), str(r.args[0])
             )
         )
@@ -52,9 +52,9 @@ def prompt_generation(s, r) -> agentspeak.Literal:
 if __name__ == "__main__":
 
     host = "127.0.0.1"
-    port = 9992
+    port = 9991
 
-    name = "manager"
+    name = "requirement_manager"
 
     action1 = a2a_agentspeak.tool.Tool(
         "function",
@@ -81,6 +81,5 @@ if __name__ == "__main__":
     def srv_start():
         uvicorn.run(server.build(), host=host, port=port)
 
-    # threading.Thread(target=srv_start).start()
-    srv_start()
+    threading.Thread(target=srv_start).start()
     print("-running a2a-server for " + name + " agent-")

@@ -23,7 +23,7 @@ if __name__ == "__main__":
     host = "127.0.0.1"
     port = 9993
 
-    name = "bad_manager"
+    name = "bad_requirement_manager"
 
     # define agent interface and implementation
     a: AgentSpeakInterface = from_file(
