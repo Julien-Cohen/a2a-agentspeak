@@ -32,16 +32,27 @@ def neutralize_str(s):
     return "'" + s + "'"
 
 
+agent_urls = [
+    "http://127.0.0.1:9990",  # robot
+    "http://127.0.0.1:9991",  # mistral manager
+    "http://127.0.0.1:9992",  # opeanai manager
+    "http://127.0.0.1:9993",  # bad manager
+]
+
+
 class ClientAgentExecutor(AgentExecutor):
     async def execute(
         self,
         context: RequestContext,
         output_event_queue: EventQueue,
     ) -> None:
-        print("Incoming message: " + context.get_user_input())
         await output_event_queue.enqueue_event(
             new_agent_text_message("MESSAGE RECEIVED")
         )
+        if context.get_user_input() == "failure":
+            print("The agent reported a failure.")
+        else:
+            print("The agent answered this: " + context.get_user_input())
 
     async def cancel(self, context: RequestContext, event_queue: EventQueue) -> None:
         raise Exception("cancel not supported")
@@ -52,11 +63,6 @@ async def main() -> None:
     logging.basicConfig(level=logging.INFO)
     logger = logging.getLogger(__name__)  # Get a logger instance
 
-    agent_urls = [
-        "http://127.0.0.1:9990",  # robot
-        "http://127.0.0.1:9991",  # mistral manager
-        "http://127.0.0.1:9992",  # opeanai manager
-    ]
     host = "127.0.0.1"
     my_port = 9999
     my_url = "http://" + host + ":" + str(my_port)

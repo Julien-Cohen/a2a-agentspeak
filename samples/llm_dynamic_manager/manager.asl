@@ -1,6 +1,6 @@
 !start.
 
-sleep_time(15000).
+sleep_time(10).
 
 +!start <-
     .my_name(N) ;
@@ -58,4 +58,5 @@ sleep_time(15000).
 
 
 +!reply_with_failure : from(F) <-
-    .send(F, tell, failure).
+    .my_name(N) ;
+    .send(F, tell, failure(N)).
