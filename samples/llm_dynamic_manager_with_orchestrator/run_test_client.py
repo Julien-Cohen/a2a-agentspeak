@@ -93,7 +93,7 @@ async def main() -> None:
     logging.basicConfig(level=logging.INFO)
     logger = logging.getLogger(__name__)  # Get a logger instance
 
-    # Build and feed an orchestrator agent.
+    # Feed an orchestrator agent.
     orchestrator_agent_card = await get_card(orchestrator_agent_url)
     async with httpx.AsyncClient(timeout=httpx.Timeout(timeout=30)) as httpx_client:
 
@@ -170,6 +170,23 @@ async def main() -> None:
     print("Selected : " + selected_agent_card.name)
     the_client_agent_executor.current_selected_agent = selected_agent_card
 
+    # inform the orchestrator of the selection
+    async with httpx.AsyncClient(timeout=httpx.Timeout(timeout=30)) as httpx_client:
+
+        client = A2AClient(
+            httpx_client=httpx_client, agent_card=orchestrator_agent_card
+        )
+
+        request = build_basic_request(
+            "tell", "selected(" + neutralize_str(selected_agent_card.url) + ")", my_url
+        )
+        try:
+            response = await client.send_message(request)
+            print("Synchronous reply received: " + extract_text(response))
+        except A2AClientTimeoutError:
+            print("No acknowledgement received before timeout.")
+
+    # talk with the selected agent
     async with httpx.AsyncClient(timeout=httpx.Timeout(timeout=30)) as httpx_client:
 
         client = A2AClient(httpx_client=httpx_client, agent_card=selected_agent_card)

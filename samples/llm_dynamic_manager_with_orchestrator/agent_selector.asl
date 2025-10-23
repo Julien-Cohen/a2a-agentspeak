@@ -14,6 +14,12 @@ sleep_time(10).
     .print("All registered agents:");
     for (available_agent(X)) { .print(X) }.
 
++selected(A) : available_agent(A) <-
+    .print("Received: Selected agent is", A).
+
++selected(A) : not available_agent(A) <-
+    .print("Warning : selected an agent which is not available.").
+
 +from(F) <-
     .print("Reply-to:", F).
 
@@ -23,6 +29,8 @@ sleep_time(10).
     .send(F, tell, failure(N)).
 
 +failed(A) : available_agent(A) <-
+    .print("Received: failure from", A);
+    .print("Removing", A, "from registered agents.");
     -available_agent(A) ;
     !print_available_agents.
 
