@@ -1,5 +1,7 @@
 !start.
 
+sleep_time(15000).
+
 +!start <-
     .my_name(N) ;
     .print("hello from", N).
@@ -19,9 +21,9 @@
     .print("Received", RES);
     if(RES == failure) { !reply_with_failure }
     else {
-        .print("Sleeping 10 seconds.") ;
-        .wait(10000) ;
-        .print("wake up") ;
+        ?sleep_time(T) ;
+        .print("Sleeping" , T, "ms.") ;
+        .wait(T) ;
         +completeness(RES)
     }.
 
@@ -38,9 +40,9 @@
     else {
         -req(L) ;
         +req([RES|L]) ;
-        .print("Sleeping 10 seconds.") ;
-        .wait(10000) ;
-        .print("wake up") ;
+         ?sleep_time(T) ;
+        .print("Sleeping" , T, "ms.") ;
+        .wait(T) ;
         !build
     }.
 
@@ -53,6 +55,7 @@
 
 +from(F) <-
     .print("Reply-to:", F).
+
 
 +!reply_with_failure : from(F) <-
     .send(F, tell, failure).

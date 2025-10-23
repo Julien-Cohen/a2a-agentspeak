@@ -1,5 +1,7 @@
 !start.
 
+sleep_time(15000).
+
 +!start <-
     .my_name(N) ;
     .print("hello from", N).
@@ -14,14 +16,14 @@
     !build.
 
 +!build : spec(S) & req(L) <-
-    .print("Consulting LLM");
-    .prompt_completeness(spec(S), req(L), RES) ;
+    .print("Consulting LLM") ;
+     .prompt_completeness(spec(S), req(L), RES) ;
     .print("Received", RES);
     if(RES == failure) { !reply_with_failure }
-    else{
-        .print("Sleeping 15 seconds.") ;
-        .wait(15000) ;
-        .print("wake up") ;
+    else {
+        ?sleep_time(T) ;
+        .print("Sleeping" , T, "ms.") ;
+        .wait(T) ;
         +completeness(RES)
     }.
 
@@ -38,11 +40,12 @@
     else {
         -req(L) ;
         +req([RES|L]) ;
-        .print("Sleeping 15 seconds.") ;
-        .wait(15000) ;
-        .print("wake up") ;
+         ?sleep_time(T) ;
+        .print("Sleeping" , T, "ms.") ;
+        .wait(T) ;
         !build
     }.
+
 
 +completeness(Other) <-
     .print ("other:", Other).
