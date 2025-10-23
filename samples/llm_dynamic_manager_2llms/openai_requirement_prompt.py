@@ -40,6 +40,7 @@ def ask_llm_for_coverage(spec: str, req_list: str):
             max_output_tokens=16,  # 16 is the minimum for gpt-4o-mini
         )
         log("Resonse from LLM received")
+        r = chat_response.output_text
         log(
             "I had an interaction with gpt to check coverage. "
             + "I gave the following spec: "
@@ -48,10 +49,15 @@ def ask_llm_for_coverage(spec: str, req_list: str):
             + "I also gave the following requirements: "
             + req_list
             + " "
-            + "Mistral gave me the following answer: "
-            + chat_response.output_text
+            + "Gpt gave me the following answer: "
+            + r
         )
-        return chat_response.output_text.startswith("COMPLETE")
+        if r.startswith("COMPLETE"):
+            return True
+        elif r.startswith("PARTIAL"):
+            return False
+        else:
+            raise Exception("Cannot understand LLM answer.")
     except Exception as e:
         print(str(e))
         raise AslError("LLM failure: " + str(type(e))) from e
@@ -81,7 +87,7 @@ def ask_llm_for_completion(spec: str, req_list: str):
             + "I also gave the following requirements: "
             + req_list
             + " "
-            + "Mistral gave me the following answer: "
+            + "Gpt gave me the following answer: "
             + chat_response.output_text
         )
         return chat_response.output_text

@@ -35,6 +35,7 @@ def ask_llm_for_coverage(spec, req_list):
             ],
             max_tokens=3,
         )
+        r = chat_response.choices[0].message.content
         log(
             "I had an interaction with mistral to check coverage. "
             + "I gave the following spec: "
@@ -44,9 +45,14 @@ def ask_llm_for_coverage(spec, req_list):
             + req_list
             + " "
             + "Mistral gave me the following answer: "
-            + chat_response.choices[0].message.content
+            + r
         )
-        return chat_response.choices[0].message.content.startswith("COMPLETE")
+        if r.startswith("COMPLETE"):
+            return True
+        elif r.startswith("PARTIAL"):
+            return False
+        else:
+            raise Exception("Cannot understand LLM answer.")
     except Exception as e:
         print(str(e))
         raise AslError("LLM failure: " + str(type(e)))
