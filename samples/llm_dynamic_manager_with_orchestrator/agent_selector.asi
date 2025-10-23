@@ -3,4 +3,8 @@ doc = An agent that manages a list of agents. (Understands AgentSpeak messages)
 
 action : register : 1 : register an existing agent as available.
 input : failed : 1 : report a failure by another agent
+input : failure : 0 : an agent reports that it failed.
 input : selected : 1 : tell which agent has been selected
+input : spec : 1 : the specification to process
+action : build : 0 : a request launch the generation process
+input : reply : 1 : the answer from a requirement manager (a list).

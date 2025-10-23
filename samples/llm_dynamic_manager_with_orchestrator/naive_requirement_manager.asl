@@ -15,10 +15,12 @@ sleep_time(10).
     +req([]) ;
     !build.
 
-+!build : spec(S) & req(L) <-
-    !reply_with_failure.
++!build : spec(S) & req(L) & from(F)<-
+    .print("Going to reply to", F) ;
+    .send(F, tell, reply(L)).
 
-
++!build <-
+    .print("Warning: Cannot process (from naive agent).").
 
 +from(F) <-
     .print("Reply-to:", F).

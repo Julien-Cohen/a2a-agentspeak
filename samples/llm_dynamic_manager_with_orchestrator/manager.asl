@@ -31,7 +31,7 @@ sleep_time(10).
 +completeness(complete) : req(L) & from(F) <-
     .print("List of requirements complete:", L) ;
     .print("Sent to", F);
-    .send(F, tell, L).
+    .send(F, tell, reply(L)).
 
 +completeness(incomplete) : spec(S) & req(L) <-
     .print("Consulting LLM") ;

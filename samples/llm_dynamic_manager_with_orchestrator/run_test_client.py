@@ -35,9 +35,10 @@ def neutralize_str(s):
 
 solution_agent_urls = [
     "http://127.0.0.1:9990/",  # robot
-    # "http://127.0.0.1:9991/",  # mistral manager
-    # "http://127.0.0.1:9992/",  # opeanai manager
-    "http://127.0.0.1:9993/",  # bad manager
+    "http://127.0.0.1:9991/",  # mistral requirement manager
+    "http://127.0.0.1:9992/",  # opeanai requirement manager
+    "http://127.0.0.1:9993/",  # bad requirement manager
+    "http://127.0.0.1:9995/",  # naive requirement manager
 ]
 
 orchestrator_agent_url = "http://127.0.0.1:9994/"
@@ -186,11 +187,10 @@ async def main() -> None:
         except A2AClientTimeoutError:
             print("No acknowledgement received before timeout.")
 
-    # talk with the selected agent
     async with httpx.AsyncClient(timeout=httpx.Timeout(timeout=30)) as httpx_client:
-
-        client = A2AClient(httpx_client=httpx_client, agent_card=selected_agent_card)
-        logger.info("A2AClient initialized.")
+        client = A2AClient(
+            httpx_client=httpx_client, agent_card=orchestrator_agent_card
+        )
 
         # First message (tell)
         request = build_basic_request(
@@ -201,6 +201,11 @@ async def main() -> None:
             print("Synchronous reply received: " + extract_text(response))
         except A2AClientTimeoutError:
             print("No acknowledgement received before timeout.")
+
+    async with httpx.AsyncClient(timeout=httpx.Timeout(timeout=30)) as httpx_client:
+        client = A2AClient(
+            httpx_client=httpx_client, agent_card=orchestrator_agent_card
+        )
 
         # Second message (achieve)
         request = build_basic_request("achieve", "build", my_url)

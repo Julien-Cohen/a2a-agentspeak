@@ -2,6 +2,8 @@ import agentspeak
 import ast
 from dataclasses import dataclass
 
+from agentspeak import LinkedList
+
 
 def lit_of_str(s: str) -> agentspeak.Literal:
     l = s.split(sep="(", maxsplit=1)
@@ -15,9 +17,16 @@ def lit_of_str(s: str) -> agentspeak.Literal:
         if args.startswith("_X_"):
             return agentspeak.Literal(symb, agentspeak.Var)
         else:
-            t = ast.literal_eval(args)
+            try:
+                t = ast.literal_eval(args)
+            except Exception:
+                t = args  # FIXME : does not work with several args
             if isinstance(t, tuple):
                 return agentspeak.Literal(symb, t)
+            elif isinstance(t, list):
+                return agentspeak.Literal(
+                    symb, (frozenset(t),)  # FIXME / needs to be hashable
+                )
             else:
                 return agentspeak.Literal(symb, (t,))
 
