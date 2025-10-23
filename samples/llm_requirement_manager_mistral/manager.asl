@@ -32,7 +32,7 @@
     if(RES == failure) { !reply_with_failure }
     else {
         -req(L) ;
-        +req([R|L]) ;
+        +req([RES|L]) ;
         !build
     }.
 
