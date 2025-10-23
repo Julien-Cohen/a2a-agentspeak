@@ -21,7 +21,8 @@ from a2a_agentspeak.message_codec import (
     build_basic_request,
     extract_text,
 )
-from a2a_utils.card_holder import CardHolder
+from a2a_utils.card_holder import CardHolder, get_card
+
 
 from mistral_selector_prompt import ask_llm_for_agent
 
@@ -38,6 +39,8 @@ agent_urls = [
     "http://127.0.0.1:9992",  # opeanai manager
     "http://127.0.0.1:9993",  # bad manager
 ]
+
+orchestrator_agent_url = "http://127.0.0.1:9994"
 
 
 class ClientAgentExecutor(AgentExecutor):
@@ -96,6 +99,24 @@ async def main() -> None:
 
     threading.Thread(target=start).start()
     print("-running a2a-server for client agent-")
+
+    # Feed the orchestrator agent.
+    orchestrator_agent_card = await get_card(orchestrator_agent_url)
+    async with httpx.AsyncClient(timeout=httpx.Timeout(timeout=30)) as httpx_client:
+
+        client = A2AClient(
+            httpx_client=httpx_client, agent_card=orchestrator_agent_card
+        )
+
+        for other_url in agent_urls:
+            request = build_basic_request(
+                "achieve", "register(" + neutralize_str(other_url) + ")", my_url
+            )
+            try:
+                response = await client.send_message(request)
+                print("Synchronous reply received: " + extract_text(response))
+            except A2AClientTimeoutError:
+                print("No acknowledgement received before timeout.")
 
     # 2) query the other a2a agents
     card_holder = CardHolder()

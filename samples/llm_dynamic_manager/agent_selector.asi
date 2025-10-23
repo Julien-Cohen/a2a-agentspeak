@@ -1,0 +1,4 @@
+name = An agent that manages other available agents
+doc = An agent that manages a list of agents. (Understands AgentSpeak messages)
+
+action : register : 1 : register an existing agent as available.
