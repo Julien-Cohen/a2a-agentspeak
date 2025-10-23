@@ -34,16 +34,42 @@ def neutralize_str(s):
 
 
 solution_agent_urls = [
-    "http://127.0.0.1:9990",  # robot
-    "http://127.0.0.1:9991",  # mistral manager
-    "http://127.0.0.1:9992",  # opeanai manager
-    "http://127.0.0.1:9993",  # bad manager
+    "http://127.0.0.1:9990/",  # robot
+    # "http://127.0.0.1:9991/",  # mistral manager
+    # "http://127.0.0.1:9992/",  # opeanai manager
+    "http://127.0.0.1:9993/",  # bad manager
 ]
 
-orchestrator_agent_url = "http://127.0.0.1:9994"
+orchestrator_agent_url = "http://127.0.0.1:9994/"
+
+host = "127.0.0.1"
+my_port = 9999
+my_url = "http://" + host + ":" + str(my_port) + "/"
 
 
 class ClientAgentExecutor(AgentExecutor):
+
+    def __init__(self, orchestrator_agent: AgentCard):
+        self.orchestrator_agent: AgentCard = orchestrator_agent
+        self.current_selected_agent = None
+
+    async def report_failure_to_orchestrator(self):
+        async with httpx.AsyncClient(timeout=httpx.Timeout(timeout=30)) as httpx_client:
+
+            client = A2AClient(
+                httpx_client=httpx_client, agent_card=self.orchestrator_agent
+            )
+            request = build_basic_request(
+                "tell",
+                "failed(" + neutralize_str(self.current_selected_agent.url) + ")",
+                my_url,
+            )
+            try:
+                response = await client.send_message(request)
+                print("Synchronous reply received: " + extract_text(response))
+            except A2AClientTimeoutError:
+                print("No acknowledgement received before timeout.")
+
     async def execute(
         self,
         context: RequestContext,
@@ -52,8 +78,9 @@ class ClientAgentExecutor(AgentExecutor):
         await output_event_queue.enqueue_event(
             new_agent_text_message("MESSAGE RECEIVED")
         )
-        if context.get_user_input() == "failure":
+        if context.get_user_input().startswith("failure"):
             print("The agent reported a failure.")
+            await self.report_failure_to_orchestrator()
         else:
             print("The agent answered this: " + context.get_user_input())
 
@@ -66,41 +93,7 @@ async def main() -> None:
     logging.basicConfig(level=logging.INFO)
     logger = logging.getLogger(__name__)  # Get a logger instance
 
-    host = "127.0.0.1"
-    my_port = 9999
-    my_url = "http://" + host + ":" + str(my_port)
-
-    # 1) start an a2a server
-
-    public_agent_card = AgentCard(
-        name="Client Agent",
-        description="A client agent",
-        url=my_url,
-        version="1.0.0",
-        default_input_modes=["text"],
-        default_output_modes=["text"],
-        capabilities=AgentCapabilities(streaming=False, push_notifications=False),
-        skills=[],
-        supports_authenticated_extended_card=False,
-    )
-
-    request_handler = DefaultRequestHandler(
-        agent_executor=ClientAgentExecutor(),
-        task_store=InMemoryTaskStore(),
-    )
-
-    server = A2AStarletteApplication(
-        agent_card=public_agent_card,
-        http_handler=request_handler,
-    )
-
-    def start():
-        uvicorn.run(server.build(), host=host, port=my_port)
-
-    threading.Thread(target=start).start()
-    print("-running a2a-server for client agent-")
-
-    # Feed the orchestrator agent.
+    # Build and feed an orchestrator agent.
     orchestrator_agent_card = await get_card(orchestrator_agent_url)
     async with httpx.AsyncClient(timeout=httpx.Timeout(timeout=30)) as httpx_client:
 
@@ -118,6 +111,38 @@ async def main() -> None:
             except A2AClientTimeoutError:
                 print("No acknowledgement received before timeout.")
 
+    # 1) start an a2a server
+
+    public_agent_card = AgentCard(
+        name="Client Agent",
+        description="A client agent",
+        url=my_url,
+        version="1.0.0",
+        default_input_modes=["text"],
+        default_output_modes=["text"],
+        capabilities=AgentCapabilities(streaming=False, push_notifications=False),
+        skills=[],
+        supports_authenticated_extended_card=False,
+    )
+
+    the_client_agent_executor = ClientAgentExecutor(orchestrator_agent_card)
+
+    request_handler = DefaultRequestHandler(
+        agent_executor=the_client_agent_executor,
+        task_store=InMemoryTaskStore(),
+    )
+
+    server = A2AStarletteApplication(
+        agent_card=public_agent_card,
+        http_handler=request_handler,
+    )
+
+    def start():
+        uvicorn.run(server.build(), host=host, port=my_port)
+
+    threading.Thread(target=start).start()
+    print("-running a2a-server for client agent-")
+
     # 2) query the other a2a agents
     card_holder = CardHolder()
     for url in solution_agent_urls:
@@ -133,20 +158,21 @@ async def main() -> None:
         )
         if i < 0 or i >= len(card_holder.cards):
             raise Exception("Irregular answer from LLM")
-        agent_card = card_holder.cards[i]
+        selected_agent_card = card_holder.cards[i]
     except Exception:
         print("LLM selection failed, switching to algorithmic selection")
         filtered = card_holder.cards_with(lambda c: "req" in c.name)
         if filtered is []:
             raise Exception("No convenient agent found")
         else:
-            agent_card = filtered[0]
+            selected_agent_card = filtered[0]
 
-    print("Selected : " + agent_card.name)
+    print("Selected : " + selected_agent_card.name)
+    the_client_agent_executor.current_selected_agent = selected_agent_card
 
     async with httpx.AsyncClient(timeout=httpx.Timeout(timeout=30)) as httpx_client:
 
-        client = A2AClient(httpx_client=httpx_client, agent_card=agent_card)
+        client = A2AClient(httpx_client=httpx_client, agent_card=selected_agent_card)
         logger.info("A2AClient initialized.")
 
         # First message (tell)

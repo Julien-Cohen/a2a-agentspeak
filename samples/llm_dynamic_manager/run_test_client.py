@@ -50,7 +50,7 @@ class ClientAgentExecutor(AgentExecutor):
         await output_event_queue.enqueue_event(
             new_agent_text_message("MESSAGE RECEIVED")
         )
-        if context.get_user_input() == "failure":
+        if context.get_user_input().startswith("failure"):
             print("The agent reported a failure.")
         else:
             print("The agent answered this: " + context.get_user_input())

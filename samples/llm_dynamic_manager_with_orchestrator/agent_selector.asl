@@ -8,9 +8,11 @@ sleep_time(10).
 
 +!register(A) <-
     +available_agent(A) ;
+    !print_available_agents.
+
++!print_available_agents <-
     .print("All registered agents:");
     for (available_agent(X)) { .print(X) }.
-
 
 +from(F) <-
     .print("Reply-to:", F).
@@ -19,3 +21,10 @@ sleep_time(10).
 +!reply_with_failure : from(F) <-
     .my_name(N) ;
     .send(F, tell, failure(N)).
+
++failed(A) : available_agent(A) <-
+    -available_agent(A) ;
+    !print_available_agents.
+
++failed(A) : not available_agent(A) <-
+    .print("Received an information about", A, "but that agent was not registered").
