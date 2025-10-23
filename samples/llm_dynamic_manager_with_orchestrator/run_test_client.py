@@ -48,6 +48,14 @@ my_port = 9999
 my_url = "http://" + host + ":" + str(my_port) + "/"
 
 
+async def send_request(client, request):
+    try:
+        response = await client.send_message(request)
+        print("Synchronous reply received: " + extract_text(response))
+    except A2AClientTimeoutError:
+        print("No acknowledgement received before timeout.")
+
+
 class ClientAgentExecutor(AgentExecutor):
 
     def __init__(self, orchestrator_agent: AgentCard):
@@ -65,11 +73,7 @@ class ClientAgentExecutor(AgentExecutor):
                 "failed(" + neutralize_str(self.current_selected_agent.url) + ")",
                 my_url,
             )
-            try:
-                response = await client.send_message(request)
-                print("Synchronous reply received: " + extract_text(response))
-            except A2AClientTimeoutError:
-                print("No acknowledgement received before timeout.")
+            await send_request(client, request)
 
     async def execute(
         self,
@@ -106,11 +110,7 @@ async def main() -> None:
             request = build_basic_request(
                 "achieve", "register(" + neutralize_str(other_url) + ")", my_url
             )
-            try:
-                response = await client.send_message(request)
-                print("Synchronous reply received: " + extract_text(response))
-            except A2AClientTimeoutError:
-                print("No acknowledgement received before timeout.")
+            await send_request(client, request)
 
     # 1) start an a2a server
 
@@ -181,11 +181,7 @@ async def main() -> None:
         request = build_basic_request(
             "tell", "selected(" + neutralize_str(selected_agent_card.url) + ")", my_url
         )
-        try:
-            response = await client.send_message(request)
-            print("Synchronous reply received: " + extract_text(response))
-        except A2AClientTimeoutError:
-            print("No acknowledgement received before timeout.")
+        await send_request(client, request)
 
     async with httpx.AsyncClient(timeout=httpx.Timeout(timeout=30)) as httpx_client:
         client = A2AClient(
@@ -196,11 +192,7 @@ async def main() -> None:
         request = build_basic_request(
             "tell", "spec(" + neutralize_str(spec1) + ")", my_url
         )
-        try:
-            response = await client.send_message(request)
-            print("Synchronous reply received: " + extract_text(response))
-        except A2AClientTimeoutError:
-            print("No acknowledgement received before timeout.")
+        await send_request(client, request)
 
     async with httpx.AsyncClient(timeout=httpx.Timeout(timeout=30)) as httpx_client:
         client = A2AClient(
@@ -209,11 +201,7 @@ async def main() -> None:
 
         # Second message (achieve)
         request = build_basic_request("achieve", "build", my_url)
-        try:
-            response = await client.send_message(request)
-            print("Synchronous reply received: " + extract_text(response))
-        except A2AClientTimeoutError:
-            print("Warning: No acknowledgement received before timeout.")
+        await send_request(client, request)
 
 
 if __name__ == "__main__":
