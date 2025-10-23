@@ -17,7 +17,7 @@ class CardHolder:
         logging.basicConfig(level=logging.INFO)
         logger = logging.getLogger(__name__)  # Get a logger instance
 
-        async with httpx.AsyncClient() as httpx_client:
+        async with httpx.AsyncClient(timeout=httpx.Timeout(timeout=30)) as httpx_client:
             # Initialize A2ACardResolver
             resolver = A2ACardResolver(
                 httpx_client=httpx_client,

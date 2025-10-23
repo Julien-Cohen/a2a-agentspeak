@@ -13,31 +13,37 @@
     +req([]) ;
     !build.
 
-+!build : spec(S) & req(L) & .print("Consulting LLM") & .prompt_completeness(spec(S), req(L), RES) <-
-    .print("Received", RES);
-    .print("Sleeping 10 seconds.") ;
-    .wait(10000) ;
-    .print("wake up") ;
-    +completeness(RES).
-
 +!build : spec(S) & req(L) <-
-    .print("Prompt failed.").
+    .print("Consulting LLM") ;
+     .prompt_completeness(spec(S), req(L), RES) ;
+    .print("Received", RES);
+    if(RES == failure) { !reply_with_failure }
+    else {
+        .print("Sleeping 10 seconds.") ;
+        .wait(10000) ;
+        .print("wake up") ;
+        +completeness(RES)
+    }.
+
 
 +completeness(complete) : req(L) & from(F) <-
     .print("List of requirements complete:", L) ;
     .print("Sent to", F);
     .send(F, tell, req(L)).
 
-+completeness(incomplete) : spec(S) & req(L) & .print("Consulting LLM") & .prompt_generate(spec(S), req(L), RES) <-
-    -req(L) ;
-    +req([RES|L]) ;
-    .print("Sleeping 10 seconds.") ;
-    .wait(10000) ;
-    .print("wake up") ;
-    !build.
-
 +completeness(incomplete) : spec(S) & req(L) <-
-    .print("Generation by LLM failed.").
+    .print("Consulting LLM") ;
+    .prompt_generate(spec(S), req(L), RES) ;
+    if(RES == failure) { !reply_with_failure }
+    else {
+        -req(L) ;
+        +req([RES|L]) ;
+        .print("Sleeping 10 seconds.") ;
+        .wait(10000) ;
+        .print("wake up") ;
+        !build
+    }.
+
 
 +completeness(Other) <-
     .print ("other:", Other).
@@ -47,3 +53,6 @@
 
 +from(F) <-
     .print("Reply-to:", F).
+
++!reply_with_failure : from(F) <-
+    .send(F, tell, failure).

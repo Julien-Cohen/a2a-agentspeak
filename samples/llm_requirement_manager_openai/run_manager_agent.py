@@ -15,21 +15,38 @@ def build_url(host: str, port: int) -> str:
     return "http://" + host + ":" + str(port) + "/"
 
 
+failure = agentspeak.Literal("failure")
+
+
 def prompt_completeness(
     s: agentspeak.Literal, r: agentspeak.Literal
 ) -> agentspeak.Literal:
     assert s.functor == "spec"
     assert r.functor == "req"
-    res = openai_requirement_prompt.ask_llm_for_coverage(str(s.args[0]), str(r.args[0]))
-    return agentspeak.Literal("complete" if res else "incomplete")
+    try:
+        res = openai_requirement_prompt.ask_llm_for_coverage(
+            str(s.args[0]), str(r.args[0])
+        )
+        return agentspeak.Literal("complete" if res else "incomplete")
+    except Exception as e:
+        print("Failure while talking with the llm")
+        print(str(e))
+        return failure
 
 
 def prompt_generation(s, r) -> agentspeak.Literal:
     assert s.functor == "spec"
     assert r.functor == "req"
-    return agentspeak.Literal(
-        openai_requirement_prompt.ask_llm_for_completion(str(s.args[0]), str(r.args[0]))
-    )
+    try:
+        return agentspeak.Literal(
+            openai_requirement_prompt.ask_llm_for_completion(
+                str(s.args[0]), str(r.args[0])
+            )
+        )
+    except Exception as e:
+        print("Failure while talking with the llm")
+        print(str(e))
+        return failure
 
 
 if __name__ == "__main__":

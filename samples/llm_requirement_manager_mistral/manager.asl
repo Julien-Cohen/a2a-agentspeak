@@ -13,36 +13,30 @@
     +req([]) ;
     !build.
 
-+!build : spec(S) & req(L) & .print("Consulting LLM") & .prompt_completeness(spec(S), req(L), RES) <-
-    .print("Received", RES);
-    +completeness(RES).
-
 +!build : spec(S) & req(L) <-
-    .print("Completion by LLM failed.").
+    .print("Consulting LLM") ;
+    .prompt_completeness(spec(S), req(L), RES) ;
+    .print("Received", RES);
+    if(RES == failure) { !reply_with_failure }
+    else { +completeness(RES) }.
 
-+completeness(failure) <-
-    .print("Failure with LLM.") ;
-    !reply_with_failure.
 
 +completeness(complete) : req(L) & from(F) <-
     .print("List of requirements complete:", L) ;
     .print("Sent to", F);
     .send(F, tell, req(L)).
 
-+completeness(incomplete) : spec(S) & req(L) & .print("Consulting LLM") & .prompt_generate(spec(S), req(L), RES) <-
-    +new_req(RES).
-
-+new_req(failure) <-
-    .print("Failure with LLM.") ;
-    !reply_with_failure.
-
-+new_req(R)<-
-    -req(L) ;
-    +req([R|L]) ;
-    !build.
-
 +completeness(incomplete) : spec(S) & req(L) <-
-    .print("Generation by LLM failed.").
+    .print("Consulting LLM") ;
+    .prompt_generate(spec(S), req(L), RES) ;
+    if(RES == failure) { !reply_with_failure }
+    else {
+        -req(L) ;
+        +req([R|L]) ;
+        !build
+    }.
+
+
 
 +completeness(Other) <-
     .print ("other:", Other).

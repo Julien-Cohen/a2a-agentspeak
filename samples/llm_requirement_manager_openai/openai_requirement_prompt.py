@@ -11,7 +11,7 @@ llm_model = "gpt-4o-mini"
 
 llm_client = OpenAI(api_key=llm_api_key)
 
-timeout = 20  # seconds
+llm_timeout = 60  # seconds
 
 
 def log(m):
@@ -19,7 +19,7 @@ def log(m):
 
 
 def ask_llm_for_coverage(spec: str, req_list: str):
-    log("Asking LLM for coverage (timeout " + str(timeout) + " seconds)")
+    log("Asking LLM for coverage (timeout " + str(llm_timeout) + " seconds)")
     try:
         chat_response = llm_client.responses.create(
             model=llm_model,
@@ -35,7 +35,7 @@ def ask_llm_for_coverage(spec: str, req_list: str):
                 + req_list
                 + "(end of list of requirements)."
             ),
-            timeout=timeout,
+            timeout=llm_timeout,
             background=False,
             max_output_tokens=16,  # 16 is the minimum for gpt-4o-mini
         )
@@ -53,11 +53,12 @@ def ask_llm_for_coverage(spec: str, req_list: str):
         )
         return chat_response.output_text.startswith("COMPLETE")
     except Exception as e:
-        raise AslError("LLM failure") from e
+        print(str(e))
+        raise AslError("LLM failure: " + str(type(e))) from e
 
 
 def ask_llm_for_completion(spec: str, req_list: str):
-    log("Asking LLM for completion  (timeout " + str(timeout) + " seconds)")
+    log("Asking LLM for completion  (timeout " + str(llm_timeout) + " seconds)")
     try:
         chat_response = llm_client.responses.create(
             model=llm_model,
@@ -68,7 +69,7 @@ def ask_llm_for_completion(spec: str, req_list: str):
             + "(end of the specification) List of requirements: "
             + req_list
             + "(end of list of requirements).",
-            timeout=timeout,
+            timeout=llm_timeout,
             background=False,
             # max_output_tokens=50,
         )
@@ -85,4 +86,5 @@ def ask_llm_for_completion(spec: str, req_list: str):
         )
         return chat_response.output_text
     except Exception as e:
-        raise AslError("LLM failure")
+        print(str(e))
+        raise AslError("LLM failure: " + str(type(e)))
