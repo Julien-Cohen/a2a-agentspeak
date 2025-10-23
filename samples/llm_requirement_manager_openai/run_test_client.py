@@ -8,8 +8,6 @@ from a2a.server.agent_execution import AgentExecutor, RequestContext
 from a2a.types import (
     AgentCard,
     AgentCapabilities,
-    MessageSendConfiguration,
-    PushNotificationConfig,
 )
 from a2a.utils.constants import (
     AGENT_CARD_WELL_KNOWN_PATH,
@@ -41,10 +39,14 @@ class ClientAgentExecutor(AgentExecutor):
         context: RequestContext,
         output_event_queue: EventQueue,
     ) -> None:
-        print("Incoming message: " + context.get_user_input())
         await output_event_queue.enqueue_event(
             new_agent_text_message("MESSAGE RECEIVED")
         )
+
+        if context.get_user_input() == "failure":
+            print("The agent reported a failure.")
+        else:
+            print("The agent answered this: " + context.get_user_input())
 
     async def cancel(self, context: RequestContext, event_queue: EventQueue) -> None:
         raise Exception("cancel not supported")
