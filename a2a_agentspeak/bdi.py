@@ -163,11 +163,13 @@ class BDIAgent:
         - reply with an ackowledgement and process the request otherwise.
         """
         if m.illocution == "achieve":
-            self.process_message(m)
             await reply(output_event_queue, "Achieve received")
-        elif m.illocution == "tell":
             self.process_message(m)
+
+        elif m.illocution == "tell":
             await reply(output_event_queue, "Tell received.")
+            self.process_message(m)
+
         elif (
             m.illocution == "ask"
         ):  # fixme : also check that the requested belief is public.
