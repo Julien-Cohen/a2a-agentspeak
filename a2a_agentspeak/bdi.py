@@ -102,21 +102,12 @@ class BDIAgent:
         def _print_float(a):
             print(str(a))
 
-        @actions.add_procedure(
-            ".send", (agentspeak.Literal, agentspeak.Literal, agentspeak.Literal)
-        )
+        @actions.add_procedure(".send", (None, agentspeak.Literal, None))
         def _send_to_url(
             u: agentspeak.Literal, illoc: agentspeak.Literal, t: agentspeak.Literal
         ):
             assert check_illoc(illoc)
             asyncio.create_task(do_send(str(u), str(illoc), str(t), self.my_url))
-
-        @actions.add_procedure(
-            ".send_str", (str, agentspeak.Literal, agentspeak.Literal)
-        )
-        def _send_to_url_str(u: str, illoc: agentspeak.Literal, t: agentspeak.Literal):
-            assert check_illoc(illoc)
-            asyncio.create_task(do_send(u, str(illoc), str(t), self.my_url))
 
     def add_tool(self, tool: Tool):
         if tool.kind == "function":

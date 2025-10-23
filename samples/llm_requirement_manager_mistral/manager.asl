@@ -24,7 +24,7 @@
 +completeness(complete) : req(L) & from(F) <-
     .print("List of requirements complete:", L) ;
     .print("Sent to", F);
-    .send(F, tell, req(L)).
+    .send(F, tell, L).
 
 +completeness(incomplete) : spec(S) & req(L) <-
     .print("Consulting LLM") ;
