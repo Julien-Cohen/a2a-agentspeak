@@ -62,11 +62,11 @@ def is_requirement_manager(card: AgentCard) -> bool:
     skills = [asl_skill_of_a2a_skill(s) for s in card.skills]
     has_spec_skill = False
     for s in skills:
-        if s.literal == "spec" and s.arity == 1 and s.illocution == "tell":
+        if s.has_interface("tell", "spec", 1):
             has_spec_skill = True
     has_build_skill = False
     for s in skills:
-        if s.literal == "build" and s.arity == 0 and s.illocution == "achieve":
+        if s.has_interface("achieve", "build", 0):
             has_build_skill = True
     return has_spec_skill and has_build_skill
 

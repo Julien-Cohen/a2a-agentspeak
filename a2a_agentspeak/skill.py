@@ -11,6 +11,9 @@ class ASLSkill:
     arity: int
     doc: str
 
+    def has_interface(self, illoc: str, lit: str, ar: int) -> bool:
+        return self.illocution == illoc and self.literal == lit and self.arity == ar
+
 
 def pretty_print_example(s: ASLSkill):
     return "(" + s.illocution + "," + s.literal + ")"
