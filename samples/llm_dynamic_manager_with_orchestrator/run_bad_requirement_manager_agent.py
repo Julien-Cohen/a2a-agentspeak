@@ -1,15 +1,8 @@
-import a2a_agentspeak.tool
-import context
-
-import threading
 import uvicorn
 
 from a2a_agentspeak.asp_build import from_file, AgentSpeakInterface
 
 import agentspeak
-
-import openai_requirement_prompt
-
 
 from context import build_url
 
@@ -31,9 +24,5 @@ if __name__ == "__main__":
     # build and run the a2a server
     server = a.build_server()
 
-    def srv_start():
-        uvicorn.run(server.build(), host=host, port=port)
-
-    # threading.Thread(target=srv_start).start()
-    srv_start()
+    uvicorn.run(server.build(), host=host, port=port)
     print("-running a2a-server for " + name + " agent-")

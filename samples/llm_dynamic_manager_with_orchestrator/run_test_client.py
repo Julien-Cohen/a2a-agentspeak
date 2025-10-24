@@ -139,10 +139,11 @@ async def main() -> None:
         http_handler=request_handler,
     )
 
-    def start():
+    def srv_start():
         uvicorn.run(server.build(), host=host, port=my_port)
 
-    threading.Thread(target=start).start()
+    # spawn the server to continue the script.
+    threading.Thread(target=srv_start).start()
     print("-running a2a-server for client agent-")
 
     # 2) query the other a2a agents
@@ -189,7 +190,6 @@ async def main() -> None:
             httpx_client=httpx_client, agent_card=orchestrator_agent_card
         )
 
-        # First message (tell)
         request = build_basic_request(
             "tell", "spec(" + neutralize_str(spec1) + ")", my_url
         )
@@ -200,7 +200,6 @@ async def main() -> None:
             httpx_client=httpx_client, agent_card=orchestrator_agent_card
         )
 
-        # Second message (achieve)
         request = build_basic_request("achieve", "build", my_url)
         await send_request(client, request)
 

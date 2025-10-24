@@ -24,5 +24,5 @@ if __name__ == "__main__":
     def start():
         uvicorn.run(server.build(), host=host, port=port)
 
-    threading.Thread(target=start).start()
+    uvicorn.run(server.build(), host=host, port=port)
     print("-running a2a-server for " + name + " agent-")
