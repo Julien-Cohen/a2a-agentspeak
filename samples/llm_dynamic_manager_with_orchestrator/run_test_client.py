@@ -71,6 +71,17 @@ def is_requirement_manager(card: AgentCard) -> bool:
     return has_spec_skill and has_build_skill
 
 
+async def send_message(dest: AgentCard, illoc: str, content: str, reply_to: str):
+    async with httpx.AsyncClient(timeout=httpx.Timeout(timeout=30)) as httpx_client:
+        client = A2AClient(httpx_client=httpx_client, agent_card=dest)
+        request = build_basic_request(
+            illoc,
+            content,
+            reply_to,
+        )
+        await send_request(client, request)
+
+
 class ClientAgentExecutor(AgentExecutor):
 
     def __init__(self, orchestrator_agent: AgentCard):
@@ -78,17 +89,12 @@ class ClientAgentExecutor(AgentExecutor):
         self.current_selected_agent = None
 
     async def report_failure_to_orchestrator(self):
-        async with httpx.AsyncClient(timeout=httpx.Timeout(timeout=30)) as httpx_client:
-
-            client = A2AClient(
-                httpx_client=httpx_client, agent_card=self.orchestrator_agent
-            )
-            request = build_basic_request(
-                "tell",
-                "failed(" + neutralize_str(self.current_selected_agent.url) + ")",
-                my_url,
-            )
-            await send_request(client, request)
+        await send_message(
+            self.orchestrator_agent,
+            "tell",
+            "failed(" + neutralize_str(self.current_selected_agent.url) + ")",
+            my_url,
+        )
 
     async def execute(
         self,
@@ -112,17 +118,13 @@ async def main() -> None:
 
     # Feed an orchestrator agent.
     orchestrator_agent_card = await get_card(orchestrator_agent_url)
-    async with httpx.AsyncClient(timeout=httpx.Timeout(timeout=30)) as httpx_client:
-
-        client = A2AClient(
-            httpx_client=httpx_client, agent_card=orchestrator_agent_card
+    for other_url in solution_agent_urls:
+        await send_message(
+            orchestrator_agent_card,
+            "achieve",
+            "register(" + neutralize_str(other_url) + ")",
+            my_url,
         )
-
-        for other_url in solution_agent_urls:
-            request = build_basic_request(
-                "achieve", "register(" + neutralize_str(other_url) + ")", my_url
-            )
-            await send_request(client, request)
 
     # 1) start an a2a server
 
@@ -168,20 +170,12 @@ async def main() -> None:
 
     for card in card_holder.cards:
         if is_requirement_manager(card):
-            async with httpx.AsyncClient(
-                timeout=httpx.Timeout(timeout=30)
-            ) as httpx_client:
-                client = A2AClient(
-                    httpx_client=httpx_client, agent_card=orchestrator_agent_card
-                )
-                request = build_basic_request(
-                    "tell",
-                    "has_requirement_manager_interface("
-                    + neutralize_str(other_url)
-                    + ")",
-                    my_url,
-                )
-                await send_request(client, request)
+            await send_message(
+                orchestrator_agent_card,
+                "tell",
+                "has_requirement_manager_interface(" + neutralize_str(card.url) + ")",
+                my_url,
+            )
 
     try:
         i = ask_llm_for_agent(
@@ -202,34 +196,18 @@ async def main() -> None:
     the_client_agent_executor.current_selected_agent = selected_agent_card
 
     # inform the orchestrator of the selection
-    async with httpx.AsyncClient(timeout=httpx.Timeout(timeout=30)) as httpx_client:
+    await send_message(
+        orchestrator_agent_card,
+        "tell",
+        "selected(" + neutralize_str(selected_agent_card.url) + ")",
+        my_url,
+    )
 
-        client = A2AClient(
-            httpx_client=httpx_client, agent_card=orchestrator_agent_card
-        )
+    await send_message(
+        orchestrator_agent_card, "tell", "spec(" + neutralize_str(spec1) + ")", my_url
+    )
 
-        request = build_basic_request(
-            "tell", "selected(" + neutralize_str(selected_agent_card.url) + ")", my_url
-        )
-        await send_request(client, request)
-
-    async with httpx.AsyncClient(timeout=httpx.Timeout(timeout=30)) as httpx_client:
-        client = A2AClient(
-            httpx_client=httpx_client, agent_card=orchestrator_agent_card
-        )
-
-        request = build_basic_request(
-            "tell", "spec(" + neutralize_str(spec1) + ")", my_url
-        )
-        await send_request(client, request)
-
-    async with httpx.AsyncClient(timeout=httpx.Timeout(timeout=30)) as httpx_client:
-        client = A2AClient(
-            httpx_client=httpx_client, agent_card=orchestrator_agent_card
-        )
-
-        request = build_basic_request("achieve", "build", my_url)
-        await send_request(client, request)
+    await send_message(orchestrator_agent_card, "achieve", "build", my_url)
 
 
 if __name__ == "__main__":
