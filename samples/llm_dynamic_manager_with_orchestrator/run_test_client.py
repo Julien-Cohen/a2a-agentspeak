@@ -37,9 +37,9 @@ def neutralize_str(s):
 
 solution_agent_urls = [
     "http://127.0.0.1:9990/",  # robot
-    "http://127.0.0.1:9991/",  # mistral requirement manager
     "http://127.0.0.1:9992/",  # opeanai requirement manager
     "http://127.0.0.1:9993/",  # bad requirement manager
+    "http://127.0.0.1:9991/",  # mistral requirement manager
     "http://127.0.0.1:9995/",  # naive requirement manager
 ]
 
@@ -176,7 +176,9 @@ async def main() -> None:
                 )
                 request = build_basic_request(
                     "tell",
-                    "is_requirement_manager(" + neutralize_str(other_url) + ")",
+                    "has_requirement_manager_interface("
+                    + neutralize_str(other_url)
+                    + ")",
                     my_url,
                 )
                 await send_request(client, request)

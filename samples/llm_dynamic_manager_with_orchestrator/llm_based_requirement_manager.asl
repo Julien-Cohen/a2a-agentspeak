@@ -27,6 +27,20 @@ sleep_time(10).
         +completeness(RES)
     }.
 
++!build : from(F) <-
+   .print ("Unexpected case (report failure).") ;
+   !reply_with_failure(F).
+
++!build : from(F) & not spec(_) <-
+   .print ("Unexpected case : no specification received (report failure).") ;
+   !reply_with_failure(F).
+
+
++!build[source(F)]: not spec(_) <-
+    .print ("Unexpected case : no specification received before build request from", F).
+
++!build <-
+    .print ("Unexpected case.").
 
 +completeness(complete) : req(L) & from(F) <-
     .print("List of requirements complete:", L) ;

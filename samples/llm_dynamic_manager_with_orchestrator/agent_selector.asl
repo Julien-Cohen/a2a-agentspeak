@@ -10,15 +10,15 @@ sleep_time(10).
     +available_agent(A) ;
     !print_available_agents.
 
-+is_requirement_manager(A) <-
-    .print("I have been told that", A, "is a requirement manager").
++has_requirement_manager_interface(A) <-
+    .print("I have been told that", A, "has convenient interface.").
 
 +!print_available_agents <-
     .print("All registered agents:");
     for (available_agent(X)) { .print(X) }.
 
 +selected(A) : available_agent(A) <-
-    .print("Received: Selected agent is", A).
+    .print("Selecting agent", A).
 
 +selected(A) : not available_agent(A) <-
     .print("Warning : selected an agent which is not available.").
@@ -40,10 +40,11 @@ sleep_time(10).
     .print("Removing", A, "from registered agents.");
     -available_agent(A) ;
     !print_available_agents ;
+    .print("Trying with another agent.");
     !select_another ;
     !build.
 
-+!select_another : available_agent(A) & is_requirement_manager(A) <-
++!select_another : available_agent(A) & has_requirement_manager_interface(A) <-
     +selected(A).
 
 +!select_another <-

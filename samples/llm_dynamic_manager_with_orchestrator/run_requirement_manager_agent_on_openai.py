@@ -50,7 +50,7 @@ if __name__ == "__main__":
     host = "127.0.0.1"
     port = 9992
 
-    name = "requirement_manager"
+    name = "llm_based_requirement_manager"
 
     action1 = a2a_agentspeak.tool.Tool(
         "function",

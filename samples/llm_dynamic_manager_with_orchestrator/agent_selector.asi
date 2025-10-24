@@ -8,4 +8,4 @@ input : selected : 1 : tell which agent has been selected
 input : spec : 1 : the specification to process
 action : build : 0 : a request launch the generation process
 input : reply : 1 : the answer from a requirement manager (a list).
-input : is_requirement_manager : 1 : tells that a registered agent is a requirement manager
+input : has_requirement_manager_interface : 1 : tells that a registered agent is a requirement manager
