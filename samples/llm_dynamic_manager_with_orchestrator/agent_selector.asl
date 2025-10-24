@@ -36,7 +36,12 @@ sleep_time(10).
     .print("Received: failure from", A);
     .print("Removing", A, "from registered agents.");
     -available_agent(A) ;
-    !print_available_agents.
+    !print_available_agents ;
+    !select_another ;
+    !build.
+
++!select_another : available_agent(A) <-
+    +selected(A).
 
 +failed(A) : not available_agent(A) <-
     .print("Received an information about", A, "but that agent was not registered").
