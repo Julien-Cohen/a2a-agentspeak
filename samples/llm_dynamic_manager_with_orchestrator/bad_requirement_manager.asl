@@ -10,23 +10,26 @@ sleep_time(10).
     +from(F) ;
     .print("I received from", F, "the specification to manage:", S).
 
-+!build : spec(S) & not req(_) <-
-    .print("No list of requirements found, creating an empty list.");
-    +req([]) ;
-    !build.
-
-+!build : spec(S) & req(L) <-
++!build : spec(S) <-
     !reply_with_failure.
 
-+!build <-
-    .print("unexpected case") ;
++!build : not spec(_) & from(F) <-
+    .print("Error : received build request from", F, "but did not receive specification.") ;
     !reply_with_failure.
 
++!build[source(F)] : not spec(_) <-
+    .print("Error : received build request from", F, "but did not receive specification.") ;
+    +from(F) ;
+    !reply_with_failure.
 
 +from(F) <-
     .print("Reply-to:", F).
 
-
 +!reply_with_failure : from(F) <-
+    .print("Reporting failure to", F) ;
     .my_name(N) ;
     .send(F, tell, failure).
+
++!reply_with_failure : not from(_) <-
+    .print("Failing to report failure.") ;
+    .fail.
