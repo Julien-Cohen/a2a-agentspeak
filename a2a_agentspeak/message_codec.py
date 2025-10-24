@@ -40,9 +40,9 @@ def build_basic_message(
     }
 
 
-def build_basic_request(illoc: str, t: str, my_url: str) -> SendMessageRequest:
+def build_basic_request(illoc: str, t: str, reply_to_url: str) -> SendMessageRequest:
     c = MessageSendConfiguration(
-        push_notification_config=PushNotificationConfig(url=my_url)
+        push_notification_config=PushNotificationConfig(url=reply_to_url)
     )
     params = MessageSendParams(**build_basic_message(illoc, t, c))
     return SendMessageRequest(id=str(uuid4()), params=params)
