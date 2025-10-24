@@ -25,6 +25,7 @@ from a2a_utils.card_holder import CardHolder, get_card
 
 
 from mistral_selector_prompt import ask_llm_for_agent
+from context import build_url
 
 spec1 = "A function to compare two words."
 
@@ -34,10 +35,10 @@ def neutralize_str(s):
 
 
 solution_agent_urls = [
-    "http://127.0.0.1:9990",  # robot
-    "http://127.0.0.1:9991",  # mistral manager
-    "http://127.0.0.1:9992",  # opeanai manager
-    "http://127.0.0.1:9993",  # bad manager
+    "http://127.0.0.1:9990/",  # robot
+    "http://127.0.0.1:9991/",  # mistral manager
+    "http://127.0.0.1:9992/",  # opeanai manager
+    "http://127.0.0.1:9993/",  # bad manager
 ]
 
 
@@ -66,7 +67,7 @@ async def main() -> None:
 
     host = "127.0.0.1"
     my_port = 9999
-    my_url = "http://" + host + ":" + str(my_port)
+    my_url = build_url(host, my_port)
 
     # 1) start an a2a server
 

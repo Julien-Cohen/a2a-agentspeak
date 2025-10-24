@@ -6,9 +6,7 @@ import uvicorn
 from a2a_agentspeak.asp_build import from_file
 
 
-def build_url(host: str, port: int) -> str:
-    return "http://" + host + ":" + str(port) + "/"
-
+from context import build_url
 
 if __name__ == "__main__":
 

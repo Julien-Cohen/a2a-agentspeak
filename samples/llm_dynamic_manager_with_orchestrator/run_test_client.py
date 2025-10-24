@@ -25,6 +25,7 @@ from a2a_utils.card_holder import CardHolder, get_card
 
 
 from mistral_selector_prompt import ask_llm_for_agent
+from context import build_url
 
 spec1 = "A function to compare two words."
 
@@ -45,7 +46,7 @@ orchestrator_agent_url = "http://127.0.0.1:9994/"
 
 host = "127.0.0.1"
 my_port = 9999
-my_url = "http://" + host + ":" + str(my_port) + "/"
+my_url = build_url(host, my_port)
 
 
 async def send_request(client, request):

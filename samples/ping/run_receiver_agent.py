@@ -11,9 +11,7 @@ port = context.port_receiver
 name = "receiver"
 
 
-def build_url(host: str, port: int) -> str:
-    return "http://" + host + ":" + str(port) + "/"
-
+from context import build_url
 
 if __name__ == "__main__":
 

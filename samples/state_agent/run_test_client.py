@@ -8,8 +8,6 @@ from a2a.server.agent_execution import AgentExecutor, RequestContext
 from a2a.types import (
     AgentCard,
     AgentCapabilities,
-    MessageSendConfiguration,
-    PushNotificationConfig,
 )
 from a2a.utils.constants import (
     AGENT_CARD_WELL_KNOWN_PATH,

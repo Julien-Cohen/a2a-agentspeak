@@ -11,9 +11,7 @@ import agentspeak
 import mistral_requirement_prompt
 
 
-def build_url(host: str, port: int) -> str:
-    return "http://" + host + ":" + str(port) + "/"
-
+from context import build_url
 
 failure = agentspeak.Literal("failure")
 
