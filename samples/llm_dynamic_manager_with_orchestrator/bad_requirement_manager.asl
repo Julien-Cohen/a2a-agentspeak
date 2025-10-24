@@ -18,6 +18,9 @@ sleep_time(10).
 +!build : spec(S) & req(L) <-
     !reply_with_failure.
 
++!build <-
+    .print("unexpected case") ;
+    !reply_with_failure.
 
 
 +from(F) <-

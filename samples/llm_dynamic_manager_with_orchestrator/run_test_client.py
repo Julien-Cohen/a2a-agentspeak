@@ -21,6 +21,7 @@ from a2a_agentspeak.message_codec import (
     build_basic_request,
     extract_text,
 )
+from a2a_agentspeak.skill import asl_skill_of_a2a_skill
 from a2a_utils.card_holder import CardHolder, get_card
 
 
@@ -42,7 +43,7 @@ solution_agent_urls = [
     "http://127.0.0.1:9995/",  # naive requirement manager
 ]
 
-orchestrator_agent_url = "http://127.0.0.1:9994/"
+orchestrator_agent_url = "http://127.0.0.1:9980/"
 
 host = "127.0.0.1"
 my_port = 9999
@@ -52,9 +53,22 @@ my_url = build_url(host, my_port)
 async def send_request(client, request):
     try:
         response = await client.send_message(request)
-        print("Synchronous reply received: " + extract_text(response))
+        print("Synchronous reply received: " + str(extract_text(response)))
     except A2AClientTimeoutError:
         print("No acknowledgement received before timeout.")
+
+
+def is_requirement_manager(card: AgentCard) -> bool:
+    skills = [asl_skill_of_a2a_skill(s) for s in card.skills]
+    has_spec_skill = False
+    for s in skills:
+        if s.literal == "spec" and s.arity == 1 and s.illocution == "tell":
+            has_spec_skill = True
+    has_build_skill = False
+    for s in skills:
+        if s.literal == "build" and s.arity == 0 and s.illocution == "achieve":
+            has_build_skill = True
+    return has_spec_skill and has_build_skill
 
 
 class ClientAgentExecutor(AgentExecutor):
@@ -95,9 +109,6 @@ class ClientAgentExecutor(AgentExecutor):
 
 
 async def main() -> None:
-    # Configure logging to show INFO level messages
-    logging.basicConfig(level=logging.INFO)
-    logger = logging.getLogger(__name__)  # Get a logger instance
 
     # Feed an orchestrator agent.
     orchestrator_agent_card = await get_card(orchestrator_agent_url)
@@ -154,6 +165,21 @@ async def main() -> None:
     # 3) select the convenient agent
     if card_holder.cards is []:
         raise Exception("No agent successfully contacted.")
+
+    for card in card_holder.cards:
+        if is_requirement_manager(card):
+            async with httpx.AsyncClient(
+                timeout=httpx.Timeout(timeout=30)
+            ) as httpx_client:
+                client = A2AClient(
+                    httpx_client=httpx_client, agent_card=orchestrator_agent_card
+                )
+                request = build_basic_request(
+                    "tell",
+                    "is_requirement_manager(" + neutralize_str(other_url) + ")",
+                    my_url,
+                )
+                await send_request(client, request)
 
     try:
         i = ask_llm_for_agent(

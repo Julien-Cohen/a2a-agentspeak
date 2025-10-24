@@ -10,6 +10,9 @@ sleep_time(10).
     +available_agent(A) ;
     !print_available_agents.
 
++is_requirement_manager(A) <-
+    .print("I have been told that", A, "is a requirement manager").
+
 +!print_available_agents <-
     .print("All registered agents:");
     for (available_agent(X)) { .print(X) }.
@@ -40,8 +43,11 @@ sleep_time(10).
     !select_another ;
     !build.
 
-+!select_another : available_agent(A) <-
++!select_another : available_agent(A) & is_requirement_manager(A) <-
     +selected(A).
+
++!select_another <-
+    .print("No agent available for this task.").
 
 +failed(A) : not available_agent(A) <-
     .print("Received an information about", A, "but that agent was not registered").
