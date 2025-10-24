@@ -119,12 +119,8 @@ async def main() -> None:
     # Feed an orchestrator agent.
     orchestrator_agent_card = await get_card(orchestrator_agent_url)
     for other_url in solution_agent_urls:
-        await send_message(
-            orchestrator_agent_card,
-            "achieve",
-            "register(" + neutralize_str(other_url) + ")",
-            my_url,
-        )
+        info = "register(" + neutralize_str(other_url) + ")"
+        await send_message(orchestrator_agent_card, "achieve", info, my_url)
 
     # 1) start an a2a server
 
@@ -170,12 +166,8 @@ async def main() -> None:
 
     for card in card_holder.cards:
         if is_requirement_manager(card):
-            await send_message(
-                orchestrator_agent_card,
-                "tell",
-                "has_requirement_manager_interface(" + neutralize_str(card.url) + ")",
-                my_url,
-            )
+            info = "has_requirement_manager_interface(" + neutralize_str(card.url) + ")"
+            await send_message(orchestrator_agent_card, "tell", info, my_url)
 
     try:
         i = ask_llm_for_agent(
@@ -196,16 +188,11 @@ async def main() -> None:
     the_client_agent_executor.current_selected_agent = selected_agent_card
 
     # inform the orchestrator of the selection
-    await send_message(
-        orchestrator_agent_card,
-        "tell",
-        "selected(" + neutralize_str(selected_agent_card.url) + ")",
-        my_url,
-    )
+    info = "selected(" + neutralize_str(selected_agent_card.url) + ")"
+    await send_message(orchestrator_agent_card, "tell", info, my_url)
 
-    await send_message(
-        orchestrator_agent_card, "tell", "spec(" + neutralize_str(spec1) + ")", my_url
-    )
+    info2 = "spec(" + neutralize_str(spec1) + ")"
+    await send_message(orchestrator_agent_card, "tell", info2, my_url)
 
     await send_message(orchestrator_agent_card, "achieve", "build", my_url)
 
