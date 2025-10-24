@@ -13,6 +13,7 @@ from a2a.client import (
     A2AClient,
     A2AClientJSONError,
     A2AClientHTTPError,
+    A2AClientTimeoutError,
 )
 from a2a.server.events import EventQueue
 from a2a.utils import new_agent_text_message
@@ -53,17 +54,19 @@ async def do_send(to_url: str, illoc: str, content: str, my_url: str):
             )
 
             request = message_tools.build_basic_request(illoc, content, my_url)
-            response = await client.send_message(request)
-            print(
-                "Message sent and synchronous answer received: "
-                + message_tools.extract_text(response)
-            )
+            try:
+                response = await client.send_message(request)
+                print(
+                    "Message sent and synchronous answer received: "
+                    + message_tools.extract_text(response)
+                )
+            except A2AClientTimeoutError:
+                print("Warning: no acknowledgement received before timeout.")
 
         except A2AClientJSONError as e:
             print("---FAIL---: ASL agent failed to send (JSON). " + str(e))
         except A2AClientHTTPError as e:
             print("---FAIL---: ASL agent failed to send (HTTP). " + str(e))
-
         except Exception as e:
             print("---FAIL---: ASL agent failed to send (other). " + str(e))
 
