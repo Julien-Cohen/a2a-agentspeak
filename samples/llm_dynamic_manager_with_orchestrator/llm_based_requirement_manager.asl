@@ -1,22 +1,22 @@
 !start.
 
-sleep_time(10).
+sleep_time(10). # milliseconds
 
 +!start <-
     .my_name(N) ;
-    .print("hello from", N).
+    .print("Hello from", N).
 
 +spec(S)[source(F)] <-
     +from(F) ;
     .print("I received the specification to manage:", S).
 
 +!build : spec(S) & not req(_) <-
-    .print("No list of requirements found, creating an empty list.");
+    .print("(Init) No list of requirements found, creating an empty list.");
     +req([]) ;
     !build.
 
 +!build : spec(S) & req(L) <-
-    .print("Consulting LLM") ;
+    .print("Consulting LLM for evaluation.") ;
      .prompt_completeness(spec(S), req(L), RES) ;
     .print("Received", RES);
     if(RES == failure) { !reply_with_failure }
@@ -48,7 +48,7 @@ sleep_time(10).
     .send(F, tell, reply(L)).
 
 +completeness(incomplete) : spec(S) & req(L) <-
-    .print("Consulting LLM") ;
+    .print("Consulting LLM for generation.") ;
     .prompt_generate(spec(S), req(L), RES) ;
     if(RES == failure) { !reply_with_failure }
     else {

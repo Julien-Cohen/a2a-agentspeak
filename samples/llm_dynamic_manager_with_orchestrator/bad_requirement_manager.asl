@@ -4,7 +4,7 @@ sleep_time(10).
 
 +!start <-
     .my_name(N) ;
-    .print("hello from", N).
+    .print("Hello from", N).
 
 +spec(S)[source(F)] <-
     +from(F) ;
@@ -31,5 +31,5 @@ sleep_time(10).
     .send(F, tell, failure).
 
 +!reply_with_failure : not from(_) <-
-    .print("Failing to report failure.") ;
+    .print("Failed to report failure.") ;
     .fail.

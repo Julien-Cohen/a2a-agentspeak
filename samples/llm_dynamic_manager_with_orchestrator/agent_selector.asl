@@ -4,7 +4,7 @@ sleep_time(10).
 
 +!start <-
     .my_name(N) ;
-    .print("hello from", N).
+    .print("Hello from", N).
 
 +!register(A) <-
     +available_agent(A) ;
@@ -62,23 +62,23 @@ sleep_time(10).
     .print("Specification received.").
 
 +!build : spec(S) & selected(A) & available_agent(A)<-
-    .print("received the order to start the job");
+    .print("Received the order to start the job.");
     .send(A, tell, spec(S)) ;
     .print("(spec sent)") ;
     .send(A, achieve, build) ;
     .print("(build sent)").
 
 +!build : not spec(_) <-
-    .print("Warning: Cannot process because of missing spec.").
+    .print("Error: Cannot process because of missing spec.").
 
 +!build : not selected(_) <-
-    .print("Warning: Cannot process because no agent has been selected.").
+    .print("Error: Cannot process because no agent has been selected.").
 
 +!build : not available_agent(_) <-
-    .print("Warning: Cannot process because no agent is available.").
+    .print("Error: Cannot process because no agent is available.").
 
 +!build : selected(A) & available_agent(B) <-
-    .print("Warning: Cannot process (mismatch between selected agent", A, "and available agents).").
+    .print("Error: Cannot process (mismatch between selected agent", A, "and available agents).").
 
 
 +reply(L) <-
@@ -86,4 +86,4 @@ sleep_time(10).
     .print("Answer is:", L).
 
 +reply <-
-    .print ("Bad answer received from requirement manager.").
+    .print ("Error: Bad answer received from requirement manager.").

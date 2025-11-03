@@ -4,14 +4,14 @@ sleep_time(10).
 
 +!start <-
     .my_name(N) ;
-    .print("hello from", N).
+    .print("Hello from", N).
 
 +spec(S)[source(F)] <-
     +from(F) ;
     .print("I received from", F, "the specification to manage:", S).
 
 +!build : spec(S) & not req(_) <-
-    .print("No list of requirements found, creating an empty list.");
+    .print("(Init) No list of requirements found, creating an empty list.");
     +req([]) ;
     !build.
 
@@ -20,7 +20,7 @@ sleep_time(10).
     .send(F, tell, reply(L)).
 
 +!build <-
-    .print("Warning: Cannot process (from naive agent).").
+    .print("Error: Cannot process (missing information).").
 
 +from(F) <-
     .print("Reply-to:", F).
